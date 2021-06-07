@@ -1,26 +1,28 @@
 Component,Description,Part,References,Value,Footprint,Quantity Per PCB,Datasheet,LCSC Pn,Voltage,Config,Status,Manufacturer #,Family,Component Value,Manufacturer,Part#,LSCS Part#
 1,"Unpolarized capacitor, small symbol",C_Small,C102,1.8p,C_0402_1005Metric,1,~,C140677,,,,,,,,,
-2,Unpolarized capacitor,C,C101 C103,100n,C_0603_1608Metric,2,~,C386106,50V,,,,,,,,
+2,"Unpolarized capacitor, small symbol",C_Small,C101 C103,100n,C_0603_1608Metric,2,~,C386106,50V,,,,,,,,
 3,"Polarized capacitor, small US symbol",CP1_Small,C110,100u,CP_Elec_6.3x7.7,1,~,C134220,35,,,,,,,,
 4,"Polarized capacitor, small US symbol",CP1_Small,C112 C113 C114 C118,100u,CP_Elec_8x10,4,~,C487360,50V,,,,,,,,
 5,"Unpolarized capacitor, small symbol",C_Small,C105 C107,1u,C_0603_1608Metric,2,~,,,,,,,,,,
 6,"Unpolarized capacitor, small symbol",C_Small,C109 C111 C115 C117,2u2,C_1210_3225Metric,4,~,C153036,100 V,,,,,,,,
-7,"200V, 0.4A, High-speed Switching Diode, SOT-23",BAS20,D101,BAS20,SOT-23,1,https://www.diodes.com/assets/Datasheets/Ds12004.pdf,,,,,,,,,,
-8,"25A Id, 30V Vds, NexFET N-Channel Power MOSFET, 6.9mOhm Ron, Qg (typ) 7.9nC, SON8 5x6mm",BSC067N06LS3G,Q102,BSC067N06LS3G,TDSON-8-1,1,https://www.infineon.com/dgdl/Infineon-BSC067N06LS3-DS-v02_04-en.pdf,C24199,,,,,,,,,
-9,"80A Id, 100V Vds, OptiMOS N-Channel Power MOSFET, 7.0mOhm Ron, Qg (typ) 30.0nC, PG-TDSON-8",BSC070N10NS5,Q101,BSC070N10NS5,TDSON-8-1,1,http://www.infineon.com/dgdl/Infineon-BSC070N10NS5-DS-v02_01-EN.pdf?fileId=5546d4624a0bf290014a0fc62d9d6b3c,C151549,,,,,,,,,
-10,Shunt resistor,R_Shunt,R105,0R002,R_2512_6332Metric_SHUNT,1,~,C457118,,,,,,,,,
-11,"Resistor, small symbol",R_Small,R114,10k,R_0603_1608Metric,1,~,,,,,,,,,,
-12,"Resistor, small symbol",R_Small,R102 R107 R108 R109 R110 R111 R118 R121,1k2,R_0603_1608Metric,8,~,,,,,,,,,,
-13,"Resistor, small symbol",R_Small,R101 R115 R116 R117 R119 R123,24k,R_0603_1608Metric,6,~,,,,,,,,,,
-14,"Resistor, small symbol",R_Small,R112 R113,30k,R_0603_1608Metric,2,~,,,,,,,,,,
-15,"Resistor, small symbol",R_Small,R103,9k1,R_0603_1608Metric,1,~,,,,,,,,,,
-16,"Wide Voltage Range Buck Controller, HTSSOP-20",LM5116MH,U101,LM5116MH,Texas_PWP0020A,1,https://www.ti.com/lit/ds/symlink/lm5116.pdf,,,,,,,,Texas Instruments,LM5116MH/NOPB,C13755
+7,Zener diode,D_Zener,D102 D103,5V1,D_SOD-123,2,~,C173407,,,,,,,,,
+8,"200V, 0.4A, High-speed Switching Diode, SOT-23",BAS20,D101,BAS20,SOT-23,1,https://www.diodes.com/assets/Datasheets/Ds12004.pdf,,,,,,,,,,
+9,"25A Id, 30V Vds, NexFET N-Channel Power MOSFET, 6.9mOhm Ron, Qg (typ) 7.9nC, SON8 5x6mm",BSC067N06LS3G,Q102,BSC067N06LS3G,TDSON-8-1,1,https://www.infineon.com/dgdl/Infineon-BSC067N06LS3-DS-v02_04-en.pdf,C24199,,,,,,,,,
+10,"80A Id, 100V Vds, OptiMOS N-Channel Power MOSFET, 7.0mOhm Ron, Qg (typ) 30.0nC, PG-TDSON-8",BSC070N10NS5,Q101,BSC070N10NS5,TDSON-8-1,1,http://www.infineon.com/dgdl/Infineon-BSC070N10NS5-DS-v02_01-EN.pdf?fileId=5546d4624a0bf290014a0fc62d9d6b3c,C151549,,,,,,,,,
+11,Shunt resistor,R_Shunt,R105,0R002,R_2512_6332Metric_SHUNT,1,~,C457118,,,,,,,,,
+12,"Resistor, small symbol",R_Small,R114,10k,R_0603_1608Metric,1,~,,,,,,,,,,
+13,"Resistor, small symbol",R_Small,R101,18k,R_0603_1608Metric,1,~,,,,,,,,,,
+14,"Resistor, small symbol",R_Small,R107 R108 R111 R118 R121,1k2,R_0603_1608Metric,5,~,,,,,,,,,,
+15,"Resistor, small symbol",R_Small,R115 R116 R117 R119 R120 R123,24k,R_0603_1608Metric,6,~,,,,,,,,,,
+16,"Resistor, small symbol",R_Small,R112 R113,30k,R_0603_1608Metric,2,~,,,,,,,,,,
+17,"Resistor, small symbol",R_Small,R103,9k1,R_0603_1608Metric,1,~,,,,,,,,,,
+18,"Wide Voltage Range Buck Controller, HTSSOP-20",LM5116MH,U101,LM5116MH,Texas_PWP0020A,1,https://www.ti.com/lit/ds/symlink/lm5116.pdf,,,,,,,,Texas Instruments,LM5116MH/NOPB,C13755
 
 
 
 
 
-Component Groups:,27
+Component Groups:,29
 Component Count:,51
 Fitted Components:,37
 Number of PCBs:,1
@@ -28,6 +30,6 @@ Total components:,37
 Schematic Version:,
 Schematic Date:,
 PCB Variant:,prod
-BoM Date:,07/06/2021 18:47:46
+BoM Date:,07/06/2021 20:00:16
 Schematic Source:,C:\Users\akiku\GIT\ROV\electronics\SynchronousBuck\SynchronousBuck.sch
 KiCad Version:,Eeschema (5.1.7)-1
