@@ -2,7 +2,7 @@
 <export version="D">
   <design>
     <source>C:\Users\akiku\GIT\ROV\electronics\SynchronousBuck\SynchronousBuck.sch</source>
-    <date>07/06/2021 20:08:42</date>
+    <date>08/06/2021 22:37:59</date>
     <tool>Eeschema (5.1.7)-1</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -115,7 +115,7 @@
       <tstamp>60C2BD6E</tstamp>
     </comp>
     <comp ref="R103">
-      <value>9k1</value>
+      <value>8k2</value>
       <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
       <datasheet>~</datasheet>
       <libsource lib="Device" part="R_Small" description="Resistor, small symbol"/>
@@ -409,7 +409,6 @@
       <footprint>Capacitor_SMD:C_1210_3225Metric</footprint>
       <datasheet>~</datasheet>
       <fields>
-        <field name="Config">-prod</field>
         <field name="LCSC Pn">C153036</field>
         <field name="Voltage">100 V</field>
       </fields>
@@ -457,6 +456,7 @@
       <footprint>Capacitor_SMD:CP_Elec_6.3x7.7</footprint>
       <datasheet>~</datasheet>
       <fields>
+        <field name="Config">-prod</field>
         <field name="LCSC Pn">C134220</field>
         <field name="Voltage">35</field>
       </fields>
@@ -517,7 +517,6 @@
       <footprint>Capacitor_SMD:C_1210_3225Metric</footprint>
       <datasheet>~</datasheet>
       <fields>
-        <field name="Config">-prod</field>
         <field name="LCSC Pn">C153036</field>
         <field name="Voltage">100 V</field>
       </fields>
@@ -530,7 +529,6 @@
       <footprint>Capacitor_SMD:C_1210_3225Metric</footprint>
       <datasheet>~</datasheet>
       <fields>
-        <field name="Config">-prod</field>
         <field name="LCSC Pn">C153036</field>
         <field name="Voltage">100 V</field>
       </fields>
@@ -603,6 +601,14 @@
       <libsource lib="Device" part="D_Zener" description="Zener diode"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamp>61174EEA</tstamp>
+    </comp>
+    <comp ref="R102">
+      <value>820</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Device" part="R_Small" description="Resistor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60C0F9EF</tstamp>
     </comp>
   </components>
   <libparts>
@@ -1124,12 +1130,12 @@
   </libraries>
   <nets>
     <net code="1" name="Net-(C119-Pad2)">
-      <node ref="C119" pin="2"/>
       <node ref="J104" pin="1"/>
+      <node ref="C119" pin="2"/>
     </net>
-    <net code="2" name="Net-(R103-Pad1)">
+    <net code="2" name="Net-(R102-Pad1)">
+      <node ref="R102" pin="1"/>
       <node ref="U101" pin="3"/>
-      <node ref="R103" pin="1"/>
     </net>
     <net code="3" name="Net-(C104-Pad2)">
       <node ref="C104" pin="2"/>
@@ -1137,8 +1143,8 @@
       <node ref="U101" pin="9"/>
     </net>
     <net code="4" name="Net-(C103-Pad1)">
-      <node ref="U101" pin="7"/>
       <node ref="C103" pin="1"/>
+      <node ref="U101" pin="7"/>
     </net>
     <net code="5" name="Net-(R101-Pad1)">
       <node ref="U101" pin="2"/>
@@ -1158,11 +1164,11 @@
       <node ref="R114" pin="2"/>
     </net>
     <net code="9" name="GND">
-      <node ref="R118" pin="2"/>
       <node ref="C118" pin="2"/>
+      <node ref="R118" pin="2"/>
       <node ref="R111" pin="1"/>
-      <node ref="J101" pin="1"/>
       <node ref="D103" pin="2"/>
+      <node ref="J101" pin="1"/>
       <node ref="D102" pin="2"/>
       <node ref="R106" pin="2"/>
       <node ref="R108" pin="2"/>
@@ -1173,84 +1179,88 @@
       <node ref="C114" pin="2"/>
       <node ref="C103" pin="2"/>
       <node ref="C102" pin="2"/>
-      <node ref="C112" pin="2"/>
-      <node ref="J104" pin="2"/>
       <node ref="C113" pin="2"/>
-      <node ref="C120" pin="2"/>
-      <node ref="C121" pin="2"/>
+      <node ref="L101" pin="3"/>
+      <node ref="J102" pin="3"/>
+      <node ref="R105" pin="4"/>
       <node ref="U101" pin="6"/>
-      <node ref="U101" pin="21"/>
+      <node ref="C109" pin="2"/>
+      <node ref="C117" pin="2"/>
+      <node ref="C116" pin="2"/>
+      <node ref="C115" pin="2"/>
       <node ref="J103" pin="2"/>
       <node ref="J102" pin="2"/>
-      <node ref="C101" pin="2"/>
-      <node ref="J102" pin="3"/>
-      <node ref="C116" pin="2"/>
-      <node ref="C117" pin="2"/>
-      <node ref="L101" pin="3"/>
       <node ref="U101" pin="14"/>
-      <node ref="C115" pin="2"/>
-      <node ref="R105" pin="4"/>
-      <node ref="C109" pin="2"/>
+      <node ref="C112" pin="2"/>
+      <node ref="C121" pin="2"/>
+      <node ref="C120" pin="2"/>
+      <node ref="J104" pin="2"/>
       <node ref="C110" pin="2"/>
+      <node ref="C101" pin="2"/>
+      <node ref="U101" pin="21"/>
     </net>
-    <net code="10" name="Net-(D103-Pad1)">
+    <net code="10" name="Net-(R102-Pad2)">
+      <node ref="R102" pin="2"/>
+      <node ref="R103" pin="1"/>
+    </net>
+    <net code="11" name="Net-(D103-Pad1)">
+      <node ref="J102" pin="1"/>
       <node ref="R121" pin="1"/>
       <node ref="D103" pin="1"/>
-      <node ref="J102" pin="1"/>
       <node ref="R120" pin="2"/>
       <node ref="R123" pin="2"/>
     </net>
-    <net code="11" name="VCC">
-      <node ref="R101" pin="2"/>
+    <net code="12" name="VCC">
       <node ref="C119" pin="1"/>
-      <node ref="C121" pin="1"/>
       <node ref="U101" pin="1"/>
+      <node ref="C121" pin="1"/>
+      <node ref="R101" pin="2"/>
       <node ref="C120" pin="1"/>
-      <node ref="J101" pin="2"/>
-      <node ref="R117" pin="1"/>
       <node ref="U101" pin="4"/>
-      <node ref="R119" pin="1"/>
-      <node ref="Q101" pin="5"/>
-      <node ref="C111" pin="1"/>
       <node ref="C101" pin="1"/>
+      <node ref="Q101" pin="5"/>
+      <node ref="R117" pin="1"/>
+      <node ref="C111" pin="1"/>
+      <node ref="R119" pin="1"/>
+      <node ref="J101" pin="2"/>
     </net>
-    <net code="12" name="Net-(C102-Pad1)">
-      <node ref="U101" pin="5"/>
+    <net code="13" name="Net-(C102-Pad1)">
       <node ref="C102" pin="1"/>
+      <node ref="U101" pin="5"/>
     </net>
-    <net code="13" name="Net-(C105-Pad1)">
-      <node ref="U101" pin="18"/>
+    <net code="14" name="Net-(C105-Pad1)">
       <node ref="C105" pin="1"/>
+      <node ref="U101" pin="18"/>
       <node ref="D101" pin="3"/>
     </net>
-    <net code="14" name="Net-(C107-Pad2)">
+    <net code="15" name="Net-(C107-Pad2)">
+      <node ref="C107" pin="2"/>
       <node ref="U101" pin="16"/>
       <node ref="D101" pin="1"/>
-      <node ref="C107" pin="2"/>
     </net>
-    <net code="15" name="Net-(C108-Pad2)">
-      <node ref="C108" pin="2"/>
+    <net code="16" name="Net-(C108-Pad2)">
       <node ref="R106" pin="1"/>
+      <node ref="C108" pin="2"/>
     </net>
-    <net code="16" name="Net-(C106-Pad1)">
-      <node ref="R108" pin="1"/>
+    <net code="17" name="Net-(C106-Pad1)">
       <node ref="U101" pin="8"/>
-      <node ref="R115" pin="2"/>
-      <node ref="C106" pin="1"/>
-      <node ref="R104" pin="1"/>
+      <node ref="R108" pin="1"/>
       <node ref="R116" pin="2"/>
+      <node ref="C106" pin="1"/>
+      <node ref="R115" pin="2"/>
+      <node ref="R104" pin="1"/>
     </net>
-    <net code="17" name="Net-(C104-Pad1)">
+    <net code="18" name="Net-(C104-Pad1)">
       <node ref="R104" pin="2"/>
       <node ref="C104" pin="1"/>
     </net>
-    <net code="18" name="/VOUT">
+    <net code="19" name="/VOUT">
       <node ref="L101" pin="2"/>
       <node ref="C112" pin="1"/>
       <node ref="C114" pin="1"/>
       <node ref="C118" pin="1"/>
-      <node ref="R123" pin="1"/>
       <node ref="R120" pin="1"/>
+      <node ref="R123" pin="1"/>
       <node ref="U101" pin="17"/>
       <node ref="U101" pin="10"/>
       <node ref="J103" pin="1"/>
@@ -1258,40 +1268,40 @@
       <node ref="C116" pin="1"/>
       <node ref="C117" pin="1"/>
       <node ref="C115" pin="1"/>
-      <node ref="C110" pin="1"/>
       <node ref="C109" pin="1"/>
       <node ref="R107" pin="1"/>
+      <node ref="C110" pin="1"/>
     </net>
-    <net code="19" name="Net-(D101-Pad2)">
+    <net code="20" name="Net-(D101-Pad2)">
       <node ref="D101" pin="2"/>
     </net>
-    <net code="20" name="Net-(Q102-Pad1)">
+    <net code="21" name="Net-(Q102-Pad1)">
       <node ref="R105" pin="1"/>
       <node ref="Q102" pin="1"/>
       <node ref="Q102" pin="2"/>
       <node ref="Q102" pin="3"/>
     </net>
-    <net code="21" name="Net-(R107-Pad2)">
+    <net code="22" name="Net-(R107-Pad2)">
       <node ref="R107" pin="2"/>
       <node ref="R115" pin="1"/>
       <node ref="R116" pin="1"/>
     </net>
-    <net code="22" name="Net-(D102-Pad1)">
+    <net code="23" name="Net-(D102-Pad1)">
       <node ref="R119" pin="2"/>
       <node ref="R117" pin="2"/>
       <node ref="D102" pin="1"/>
       <node ref="J102" pin="4"/>
       <node ref="R118" pin="1"/>
     </net>
-    <net code="23" name="/LO">
+    <net code="24" name="/LO">
       <node ref="Q102" pin="4"/>
       <node ref="U101" pin="15"/>
     </net>
-    <net code="24" name="/HO">
+    <net code="25" name="/HO">
       <node ref="U101" pin="19"/>
       <node ref="Q101" pin="4"/>
     </net>
-    <net code="25" name="/SW">
+    <net code="26" name="/SW">
       <node ref="Q102" pin="5"/>
       <node ref="L101" pin="1"/>
       <node ref="C108" pin="1"/>
@@ -1301,12 +1311,12 @@
       <node ref="Q101" pin="2"/>
       <node ref="Q101" pin="1"/>
     </net>
-    <net code="26" name="Net-(R105-Pad3)">
+    <net code="27" name="Net-(R105-Pad3)">
       <node ref="R114" pin="1"/>
       <node ref="R105" pin="3"/>
       <node ref="R113" pin="1"/>
     </net>
-    <net code="27" name="Net-(R105-Pad2)">
+    <net code="28" name="Net-(R105-Pad2)">
       <node ref="R105" pin="2"/>
       <node ref="R112" pin="1"/>
     </net>
