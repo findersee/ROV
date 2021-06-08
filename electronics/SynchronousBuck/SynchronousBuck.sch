@@ -276,7 +276,7 @@ L Device:R_Small R103
 U 1 1 60C33F82
 P 6250 4150
 F 0 "R103" H 6309 4196 50  0000 L CNN
-F 1 "9k1" H 6309 4105 50  0000 L CNN
+F 1 "8k2" H 6309 4105 50  0000 L CNN
 F 2 "Resistor_SMD:R_0603_1608Metric" H 6250 4150 50  0001 C CNN
 F 3 "~" H 6250 4150 50  0001 C CNN
 	1    6250 4150
@@ -360,8 +360,8 @@ F 3 "" H 3750 4100 50  0001 C CNN
 	1    3750 4100
 	1    0    0    -1  
 $EndComp
-Text Notes 6550 4100 0    50   ~ 0
-fsw 330 kHz
+Text Notes 6400 3950 0    50   ~ 0
+fsw 332 kHz
 Text Notes 3550 3250 0    50   ~ 0
 Vin 20-50V
 Wire Wire Line
@@ -950,7 +950,6 @@ F 2 "Capacitor_SMD:C_1210_3225Metric" H 12688 4000 50  0001 C CNN
 F 3 "~" H 12650 4150 50  0001 C CNN
 F 4 "100 V" H 12650 4150 50  0001 C CNN "Voltage"
 F 5 "C153036" H 12650 4150 50  0001 C CNN "LCSC Pn"
-F 6 "-prod" H 12650 4150 50  0001 C CNN "Config"
 	1    12650 4150
 	1    0    0    -1  
 $EndComp
@@ -1041,6 +1040,7 @@ F 2 "Capacitor_SMD:CP_Elec_6.3x7.7" H 13400 4150 50  0001 C CNN
 F 3 "~" H 13400 4150 50  0001 C CNN
 F 4 "C134220" H 13400 4150 50  0001 C CNN "LCSC Pn"
 F 5 "35" H 13400 4150 50  0001 C CNN "Voltage"
+F 6 "-prod" H 13400 4150 50  0001 C CNN "Config"
 	1    13400 4150
 	1    0    0    -1  
 $EndComp
@@ -1133,7 +1133,6 @@ F 2 "Capacitor_SMD:C_1210_3225Metric" H 4688 3300 50  0001 C CNN
 F 3 "~" H 4650 3450 50  0001 C CNN
 F 4 "100 V" H 4650 3450 50  0001 C CNN "Voltage"
 F 5 "C153036" H 4650 3450 50  0001 C CNN "LCSC Pn"
-F 6 "-prod" H 4650 3450 50  0001 C CNN "Config"
 	1    4650 3450
 	1    0    0    -1  
 $EndComp
@@ -1147,7 +1146,6 @@ F 2 "Capacitor_SMD:C_1210_3225Metric" H 4288 3300 50  0001 C CNN
 F 3 "~" H 4250 3450 50  0001 C CNN
 F 4 "100 V" H 4250 3450 50  0001 C CNN "Voltage"
 F 5 "C153036" H 4250 3450 50  0001 C CNN "LCSC Pn"
-F 6 "-prod" H 4250 3450 50  0001 C CNN "Config"
 	1    4250 3450
 	1    0    0    -1  
 $EndComp
@@ -1224,14 +1222,6 @@ F 5 "50" H 15000 4150 50  0001 C CNN "Voltage"
 	1    15000 4150
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	6250 4050 6250 4000
-Wire Wire Line
-	6250 4000 6900 4000
-Wire Wire Line
-	6900 4000 6900 3800
-Wire Wire Line
-	6900 3800 6950 3800
 Wire Wire Line
 	15600 4000 15350 4000
 Connection ~ 15350 4000
@@ -1520,4 +1510,21 @@ F 4 "C173407" V 14850 5250 50  0001 C CNN "LCSC Pn"
 	1    14850 5250
 	0    1    1    0   
 $EndComp
+$Comp
+L Device:R_Small R102
+U 1 1 60C0F9EF
+P 6600 3800
+F 0 "R102" V 6404 3800 50  0000 C CNN
+F 1 "820" V 6495 3800 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 6600 3800 50  0001 C CNN
+F 3 "~" H 6600 3800 50  0001 C CNN
+	1    6600 3800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	6500 3800 6250 3800
+Wire Wire Line
+	6250 3800 6250 4050
+Wire Wire Line
+	6700 3800 6950 3800
 $EndSCHEMATC
