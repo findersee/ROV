@@ -2,7 +2,7 @@
 <export version="D">
   <design>
     <source>C:\Users\akiku\GIT\ROV\electronics\SynchronousBuck\SynchronousBuck.sch</source>
-    <date>09/06/2021 19:18:40</date>
+    <date>09/06/2021 20:06:21</date>
     <tool>Eeschema (5.1.7)-1</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -432,7 +432,6 @@
       <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
       <datasheet>~</datasheet>
       <fields>
-        <field name="Config">-prod</field>
         <field name="LCSC Pn">C57112</field>
       </fields>
       <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
