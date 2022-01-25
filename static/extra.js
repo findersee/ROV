@@ -7,3 +7,4 @@ function cpuTemp(){
     xhttp.open("GET", "cpu_temp", true);
     xhttp.send();
 }
+}
