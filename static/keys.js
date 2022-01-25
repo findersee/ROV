@@ -7,9 +7,15 @@ var last_key;
 
 document.onkeydown = function(evt) {
     evt = evt || window.event;
+    console.log(evt.keyCode)
+    console.log(" ")
+    console.log(last_key)
     if (evt.keyCode != last_key){
+        console.log("inside")
         last_key = evt.keyCode;
-        send_keydown(evt.keyCode);
+        if (!handle_in_browser(evt.keyCode)){
+            send_keydown(evt.keyCode);
+        }
     }
 }
 

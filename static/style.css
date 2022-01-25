@@ -7,9 +7,16 @@ body {
 a {
     text-decoration: none;
 }
-img {
+#image {
+    display: block;
+    margin: auto auto;
     width: 100%;
-    height: auto;
+    transform: rotate(180deg);
+}
+
+.valueBox {
+	background: transparent;
+    border: none;
 }
 
 .container {
@@ -22,15 +29,38 @@ img {
   top: 8px;
   left: 16px;
 }
-main{
-    width: 700px;
-    margin-top: 20px;
-    margin-left: auto;
-    margin-right: auto;
-}
+
 .sensorBox {
 	text-align: center;
 	background-color: #999CAA;
 	color: white;
 	border: 5px solid #ff0000;
+}
+
+.rollOverlay {
+    position: absolute;
+    color: white;
+}
+
+.center-panel{
+    display: inline;
+    position: relative;
+}
+
+.grid-container > div {
+  padding: 10px 10px 0px 10px;
+}
+
+.side-panel > .card {
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: 200px auto 200px;
+  height: 100%;
+}
+
+.side-panel{
+  width=250px;
 }
