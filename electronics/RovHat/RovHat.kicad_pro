@@ -44,7 +44,7 @@
         "silk_text_thickness": 0.15,
         "silk_text_upright": false,
         "zones": {
-          "45_degree_only": true,
+          "45_degree_only": false,
           "min_clearance": 0.25
         }
       },
@@ -60,7 +60,10 @@
           "width": 0.20574
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        "silk_over_copper|67500000|113840000|0e2c8378-eeec-424e-b667-c4d9a0901df4|4f0dfebc-e7f6-45a5-9f1e-4a46e29fdb26",
+        "silk_over_copper|67500000|127160000|0e2c8378-eeec-424e-b667-c4d9a0901df4|86bba780-a183-42d2-86e6-b1ca627942a1"
+      ],
       "meta": {
         "version": 2
       },
@@ -161,7 +164,9 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [],
+    "erc_exclusions": [
+      "power_pin_not_driven|2095500|419100|8ea4dc04-32dc-4f59-bbc6-f0222a04aef6|00000000-0000-0000-0000-000000000000"
+    ],
     "meta": {
       "version": 0
     },
@@ -403,7 +408,6 @@
         "microvia_drill": 0.1,
         "name": "Power",
         "nets": [
-          "+3.3VA",
           "+5V",
           "VDD"
         ],
@@ -447,7 +451,7 @@
       "idf": "",
       "netlist": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "3D/RovHat.step",
       "vrml": ""
     },
     "page_layout_descr_file": ""
