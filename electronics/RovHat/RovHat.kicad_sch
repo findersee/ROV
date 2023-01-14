@@ -4,7 +4,44 @@
 
   (paper "A3")
 
+  (title_block
+    (title "ROV RPI PICO HAT")
+    (date "2023-01-14")
+    (rev "1")
+    (company "Findersee")
+    (comment 1 "Main Block Diagram")
+  )
+
   (lib_symbols
+    (symbol "Mechanical:MountingHole" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+      (property "Reference" "H" (id 0) (at 0 5.08 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Value" "MountingHole" (id 1) (at 0 3.175 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Footprint" "" (id 2) (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "Datasheet" "~" (id 3) (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_keywords" "mounting hole" (id 4) (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_description" "Mounting Hole without connection" (id 5) (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "ki_fp_filters" "MountingHole*" (id 6) (at 0 0 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (symbol "MountingHole_0_1"
+        (circle (center 0 0) (radius 1.27)
+          (stroke (width 1.27) (type default) (color 0 0 0 0))
+          (fill (type none))
+        )
+      )
+    )
   )
 
 
@@ -95,6 +132,74 @@
   (wire (pts (xy 144.78 200.66) (xy 266.7 200.66))
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid fed7e725-6fe6-4c12-b7b2-bf5a655eda94)
+  )
+
+  (symbol (lib_id "Mechanical:MountingHole") (at 386.08 217.17 0) (unit 1)
+    (in_bom yes) (on_board yes) (fields_autoplaced)
+    (uuid 02a6deef-a27e-4f78-9132-f029461a1c12)
+    (property "Reference" "H401" (id 0) (at 388.62 216.2615 0)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Value" "MountingHole" (id 1) (at 388.62 219.0366 0)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5" (id 2) (at 386.08 217.17 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "~" (id 3) (at 386.08 217.17 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+  )
+
+  (symbol (lib_id "Mechanical:MountingHole") (at 386.08 224.79 0) (unit 1)
+    (in_bom yes) (on_board yes) (fields_autoplaced)
+    (uuid 13b93b86-c7f7-4bd6-8395-83e3bb2ec213)
+    (property "Reference" "H402" (id 0) (at 388.62 223.8815 0)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Value" "MountingHole" (id 1) (at 388.62 226.6566 0)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5" (id 2) (at 386.08 224.79 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "~" (id 3) (at 386.08 224.79 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+  )
+
+  (symbol (lib_id "Mechanical:MountingHole") (at 386.08 240.03 0) (unit 1)
+    (in_bom yes) (on_board yes) (fields_autoplaced)
+    (uuid 8db2cc8d-4ba9-4c46-9a6a-2505da4c7844)
+    (property "Reference" "H404" (id 0) (at 388.62 239.1215 0)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Value" "MountingHole" (id 1) (at 388.62 241.8966 0)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5" (id 2) (at 386.08 240.03 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "~" (id 3) (at 386.08 240.03 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+  )
+
+  (symbol (lib_id "Mechanical:MountingHole") (at 386.08 232.41 0) (unit 1)
+    (in_bom yes) (on_board yes) (fields_autoplaced)
+    (uuid c11d4df1-2d00-44e1-90be-b73677a9c998)
+    (property "Reference" "H403" (id 0) (at 388.62 231.5015 0)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Value" "MountingHole" (id 1) (at 388.62 234.2766 0)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5" (id 2) (at 386.08 232.41 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "~" (id 3) (at 386.08 232.41 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
   )
 
   (sheet (at 82.55 25.654) (size 62.23 220.726) (fields_autoplaced)
@@ -471,16 +576,28 @@
     (path "/212ae4ce-78ca-42fb-a0a9-9e7afe94e4f9/d0894518-9b75-4b48-908e-aea66a40eb2b"
       (reference "#PWR0504") (unit 1) (value "GND") (footprint "")
     )
-    (path "/d0328239-535b-4cf1-98be-6519c44fecfc/d0522802-41e1-4aa4-bdd1-cf465949a1f4"
+    (path "/212ae4ce-78ca-42fb-a0a9-9e7afe94e4f9/ae3bc981-dc5d-4efc-a359-2dbd858997b3"
+      (reference "D501") (unit 1) (value "MBR0550") (footprint "Diode_SMD:D_SOD-123")
+    )
+    (path "/212ae4ce-78ca-42fb-a0a9-9e7afe94e4f9/6d32de7f-8511-4acc-ae00-a355e28677f8"
+      (reference "D502") (unit 1) (value "MBR0550") (footprint "Diode_SMD:D_SOD-123")
+    )
+    (path "/212ae4ce-78ca-42fb-a0a9-9e7afe94e4f9/1d83f8fb-331a-45cf-b7e4-73d15afe4549"
+      (reference "D503") (unit 1) (value "MBR0550") (footprint "Diode_SMD:D_SOD-123")
+    )
+    (path "/212ae4ce-78ca-42fb-a0a9-9e7afe94e4f9/b7f32931-ffe5-41b6-babb-50097a414397"
+      (reference "D504") (unit 1) (value "MBR0550") (footprint "Diode_SMD:D_SOD-123")
+    )
+    (path "/02a6deef-a27e-4f78-9132-f029461a1c12"
       (reference "H401") (unit 1) (value "MountingHole") (footprint "MountingHole:MountingHole_2.7mm_M2.5")
     )
-    (path "/d0328239-535b-4cf1-98be-6519c44fecfc/825a18b0-cab3-4ca5-8fad-c014f4c769aa"
+    (path "/13b93b86-c7f7-4bd6-8395-83e3bb2ec213"
       (reference "H402") (unit 1) (value "MountingHole") (footprint "MountingHole:MountingHole_2.7mm_M2.5")
     )
-    (path "/d0328239-535b-4cf1-98be-6519c44fecfc/03237fd7-78d8-4d96-ad96-ce43adb9aa63"
+    (path "/c11d4df1-2d00-44e1-90be-b73677a9c998"
       (reference "H403") (unit 1) (value "MountingHole") (footprint "MountingHole:MountingHole_2.7mm_M2.5")
     )
-    (path "/d0328239-535b-4cf1-98be-6519c44fecfc/de7fea8d-4e42-45f2-bcd8-b104da103d2e"
+    (path "/8db2cc8d-4ba9-4c46-9a6a-2505da4c7844"
       (reference "H404") (unit 1) (value "MountingHole") (footprint "MountingHole:MountingHole_2.7mm_M2.5")
     )
     (path "/ac5eb4a7-a387-48d6-b4f5-8a76d938534b/50df8fa0-ee2a-4112-85b7-c22bb6e6d9c5"

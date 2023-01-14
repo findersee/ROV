@@ -4,6 +4,14 @@
 
   (paper "A4")
 
+  (title_block
+    (title "ROV RPI PICO HAT")
+    (date "2023-01-14")
+    (rev "1")
+    (company "Findersee")
+    (comment 1 "ROV RPI PICO HAT")
+  )
+
   (lib_symbols
     (symbol "Connector_Generic:Conn_01x03" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
       (property "Reference" "J" (id 0) (at 0 5.08 0)
@@ -543,13 +551,13 @@
   )
 
   (no_connect (at 142.24 71.12) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c6a))
-  (no_connect (at 195.58 60.96) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c6a))
-  (no_connect (at 195.58 41.91) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c6a))
-  (no_connect (at 142.24 83.82) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c6a))
-  (no_connect (at 142.24 43.18) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c6a))
-  (no_connect (at 142.24 45.72) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c6a))
-  (no_connect (at 142.24 40.64) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c6a))
-  (no_connect (at 142.24 38.1) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c6a))
+  (no_connect (at 195.58 60.96) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c6b))
+  (no_connect (at 195.58 41.91) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c6c))
+  (no_connect (at 142.24 83.82) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c6d))
+  (no_connect (at 142.24 43.18) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c6e))
+  (no_connect (at 142.24 45.72) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c6f))
+  (no_connect (at 142.24 40.64) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c70))
+  (no_connect (at 142.24 38.1) (uuid 2091e084-e0fa-45b4-a45f-8dedb7155c71))
 
   (wire (pts (xy 102.87 68.58) (xy 102.87 71.12))
     (stroke (width 0) (type default) (color 0 0 0 0))
