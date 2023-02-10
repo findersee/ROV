@@ -15,8 +15,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -188,3 +186,5 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+*/lib/*

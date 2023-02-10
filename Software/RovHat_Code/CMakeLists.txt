@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 
 # Include build functions from Pico SDK
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+add_subdirectory(./lib/pico-ads1115/lib ads1115)
 
 # Set name of project (as PROJECT_NAME) and C/C++ standards
 project(blink C CXX ASM)
@@ -23,6 +24,8 @@ pico_add_extra_outputs(${PROJECT_NAME})
 # Link to pico_stdlib (gpio, time, etc. functions)
 target_link_libraries(${PROJECT_NAME} 
     pico_stdlib
+    hardware_i2c
+    pico-ads1115
 )
 
 # Enable usb output, disable uart output
