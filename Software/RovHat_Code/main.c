@@ -5,8 +5,11 @@
 #define I2C_PORT i2c0
 #define I2C_FREQ 400000
 #define ADS1115_I2C_ADDR 0x48
-const uint8_t SDA_PIN = 20;
-const uint8_t SCL_PIN = 21;
+const uint8_t SDA_PIN = 0;
+const uint8_t SCL_PIN = 1;
+const uint8_t TX_PIN = 8;
+const uint8_t RX_PIN = 9;
+
 
 struct ads1115_adc adc;
 
