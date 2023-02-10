@@ -1,3 +1,6 @@
 [submodule "Software/RovHat_Code/lib/pico-ads1115"]
 	path = Software/RovHat_Code/lib/pico-ads1115
 	url = https://github.com/antgon/pico-ads1115
+[submodule "Software/RovHat_Code/FreeRTOS-Kernel"]
+	path = Software/RovHat_Code/FreeRTOS-Kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
