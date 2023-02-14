@@ -12,7 +12,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(freertos)
-add_subdirectory(./lib/pico-ads1115/lib ads1115)
+add_subdirectory(./lib/ads1115 ads1115)
 
 # Creates a pico-sdk subdirectory in our project for the libraries
 pico_sdk_init()

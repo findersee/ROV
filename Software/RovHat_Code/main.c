@@ -9,17 +9,12 @@ const uint8_t SDA_PIN = 0;
 const uint8_t SCL_PIN = 1;
 const uint8_t TX_PIN = 8;
 const uint8_t RX_PIN = 9;
-
+const uint8_t led_pin = 25;
 
 struct ads1115_adc adc;
 
-
-
-
-int main() {
-
-    const uint led_pin = 25;
-
+int init()
+{
     // Initialize LED pin
     gpio_init(led_pin);
     gpio_set_dir(led_pin, GPIO_OUT);
@@ -36,7 +31,12 @@ int main() {
 
     // Initialise ADC
     ads1115_init(I2C_PORT, ADS1115_I2C_ADDR, &adc);
+}
 
+
+int main() {
+
+    init();
 
     // Loop forever
     while (true) {
