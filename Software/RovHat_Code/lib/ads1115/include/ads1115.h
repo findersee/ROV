@@ -19,3 +19,8 @@ void ads1115_readADC(ads1115_ADC_t *adc,uint16_t *adc_value);
 void ads1115_readConfig(ads1115_ADC_t *adc);
 
 void ads1115_writeConfig(ads1115_ADC_t *adc);
+
+void ads1115_set_MUX(ads1115_ADC_t *adc,enum ADS1115_MUX_t MUX);
+
+
+#endif
