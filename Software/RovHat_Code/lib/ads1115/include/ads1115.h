@@ -5,7 +5,8 @@
 #include "hardware/i2c.h"
 #include "registers.h"
 
-typedef struct ads1115_ADC {
+
+typedef struct ads1115_adc {
 	i2c_inst_t *I2C_inst;
 	uint8_t address;
 	uint16_t config;

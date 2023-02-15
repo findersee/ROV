@@ -22,3 +22,13 @@ void ads1115_set_MODE(ads1115_ADC_t *adc,enum ADS1115_MODE_t MODE){
     adc->config &= ~ADS1115_MODE_MASK; 
     adc->config |= MODE;
 }
+
+void ads1115_set_DR(ads1115_ADC_t *adc,enum ADS1115_DR_t RATE){
+    adc->config &= ~ADS1115_DR_MASK;
+    adc->config |= RATE;
+}
+
+void ads1115_set_PGA(ads1115_ADC_t *adc,enum ADS1115_PGA_t PGA){
+    adc->config &= ~ADS1115_PGA_MASK;
+    adc->config |= PGA;
+}

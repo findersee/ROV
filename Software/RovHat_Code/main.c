@@ -1,6 +1,13 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
-#include "ads1115.h"
+#include "pico/binary_info.h"
+
+#include <ads1115.h> //ADS1115 Driver
+/*
+#include <FreeRTOS.h>
+#include <task.h>
+#include <queue.h>
+*/
 
 #define I2C_PORT i2c0
 #define I2C_FREQ 400000
@@ -37,7 +44,7 @@ int init()
 int main() {
 
     init();
-
+    uint16_t value;
     // Loop forever
     while (true) {
 
@@ -47,5 +54,7 @@ int main() {
         sleep_ms(1000);
         gpio_put(led_pin, false);
         sleep_ms(1000);
+        ads1115_readADC(&adc,&value);
+        printf("ADC value:%u",value);
     }
 }

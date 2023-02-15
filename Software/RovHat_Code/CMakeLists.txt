@@ -4,7 +4,6 @@ cmake_minimum_required(VERSION 3.12)
 # Include build functions from Pico SDK
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
-#add_subdirectory(FreeRTOS-Kernel)
 
 # Set name of project (as PROJECT_NAME) and C/C++ standards
 project(ROV_HAT C CXX ASM)
@@ -12,7 +11,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(freertos)
-add_subdirectory(./lib/ads1115 ads1115)
+add_subdirectory(lib/ads1115)
 
 # Creates a pico-sdk subdirectory in our project for the libraries
 pico_sdk_init()
@@ -28,8 +27,8 @@ pico_add_extra_outputs(${PROJECT_NAME})
 # Link to pico_stdlib (gpio, time, etc. functions)
 target_link_libraries(${PROJECT_NAME} 
     pico_stdlib
-    hardware_i2c
-    pico-ads1115
+    ads1115
+    freertos
 )
 
 # Enable usb output, disable uart output

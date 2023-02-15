@@ -28,4 +28,32 @@ enum ADS1115_MUX_t{
     MUX_SINGLE_4 = 0x7000
 };
 
+static const uint16_t ADS1115_MODE_MASK = 0x0100;
+enum ADS1115_MODE_t{
+    MODE_CONT = 0x0000,
+    SINGLE = 0x0100,
+};
+
+static const uint16_t ADS1115_PGA_MASK = 0x0E00;
+enum ADS1115_PGA_t{
+    PGA_6144 = 0x000,
+    PGA_4096 = 0x200,
+    PGA_2049 = 0x400,
+    PGA_1024 = 0x600,
+    PGA_512 = 0x800,
+    PGA_256 = 0xA00
+};
+
+static const uint16_t ADS1115_DR_MASK = 0x00E0;
+enum ADS1115_DR_t{
+    SPS_8 = 0x00,
+    SPS_16 = 0x20,
+    SPS_32 = 0x40,
+    SPS_64 = 0x60,
+    SPS_128 = 0x80,
+    SPS_250 = 0xA0,
+    SPS_475 = 0xC0,
+    SPS_860 = 0xE0
+};
+
 #endif
