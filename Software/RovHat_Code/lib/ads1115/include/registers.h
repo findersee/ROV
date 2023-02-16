@@ -38,7 +38,7 @@ static const uint16_t ADS1115_PGA_MASK = 0x0E00;
 enum ADS1115_PGA_t{
     PGA_6144 = 0x000,
     PGA_4096 = 0x200,
-    PGA_2049 = 0x400,
+    PGA_2048 = 0x400,
     PGA_1024 = 0x600,
     PGA_512 = 0x800,
     PGA_256 = 0xA00

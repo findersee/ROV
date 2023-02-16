@@ -23,5 +23,12 @@ void ads1115_writeConfig(ads1115_ADC_t *adc);
 
 void ads1115_set_MUX(ads1115_ADC_t *adc,enum ADS1115_MUX_t MUX);
 
+void ads1115_set_MODE(ads1115_ADC_t *adc,enum ADS1115_MODE_t MODE);
+
+void ads1115_set_DR(ads1115_ADC_t *adc,enum ADS1115_DR_t RATE);
+
+void ads1115_set_PGA(ads1115_ADC_t *adc,enum ADS1115_PGA_t PGA);
+
+float ads1115_convert_raw(ads1115_ADC_t *adc,uint16_t adcValue);
 
 #endif

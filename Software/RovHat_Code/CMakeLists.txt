@@ -29,6 +29,7 @@ target_link_libraries(${PROJECT_NAME}
     pico_stdlib
     ads1115
     freertos
+    hardware_pwm
 )
 
 # Enable usb output, disable uart output
