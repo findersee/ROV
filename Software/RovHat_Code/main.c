@@ -24,7 +24,11 @@ const uint8_t SCL_PIN = 1;
 const uint8_t TX_PIN = 8;
 const uint8_t RX_PIN = 9;
 
-const uint8_t pio_pin = 22;
+const uint8_t Prop_Right = 22;
+const uint8_t Prop_Left = 26;
+
+const uint8_t Depth_Right = 27;
+const uint8_t Depth_Left = 28;
 
 const uint8_t led_pin = 25;
 
@@ -84,7 +88,7 @@ int init()
 
     float div = 31.25f; //(float)clock_get_hz(clk_sys) / 40000.f;
 
-    Dshot_program_init(pio,sm,offset,pio_pin,div);
+    Dshot_program_init(pio,sm,offset,Prop_Right,div);
 
     pio_sm_set_enabled(pio,sm,true);
     //pio_sm_put_blocking(pio,sm,0x5555);
