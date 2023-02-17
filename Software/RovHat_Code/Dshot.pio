@@ -1,0 +1,47 @@
+.program Dshot
+
+; Turn on LED for 100 cycles and off for 100 cycles.
+; At 2 kHz, this will toggle pin at 10 Hz (200 cycles / 2000 Hz = 0.1 sec)
+.side_set 1
+
+.wrap_target
+loop:
+    out x, 1        side 0 [7-1]      ; Read bit from OSR
+    jmp !x is_Zero  side 1 [10-1]      ; Check if bit is zero
+is_one:    
+    jmp loop        side 1 [10-1]      ; Extra delay for one
+is_Zero:    
+    nop             side 0 [8-1]      ; Turn LED off and wait another 19 cycles
+.wrap
+
+% c-sdk {
+
+// Helper function (for use in C program) to initialize this PIO program
+void Dshot_program_init(PIO pio, uint sm, uint offset, uint pin, float div) {
+
+    // Sets up state machine and wrap target. This function is automatically
+    // generated in Dshot.pio.h.
+    pio_sm_config c = Dshot_program_get_default_config(offset);
+
+    // Allow PIO to control GPIO pin (as output)
+    pio_gpio_init(pio, pin);
+
+    // Connect pin to SET pin (control with 'set' instruction)
+    //sm_config_set_set_pins(&c, pin, 1);
+
+    sm_config_set_sideset_pins(&c, pin);
+    sm_config_set_fifo_join(&c, PIO_FIFO_JOIN_TX);
+    // Set the pin direction to output (in PIO)
+    pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, true);
+    
+    // Set the clock divider for the state machine
+    sm_config_set_clkdiv(&c, div);
+
+    // Set autopull
+    sm_config_set_out_shift(&c,true,true,16);
+
+    // Load configuration and jump to start of the program
+    pio_sm_init(pio, sm, offset, &c);
+}
+
+%}

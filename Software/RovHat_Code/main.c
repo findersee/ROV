@@ -3,6 +3,9 @@
 #include "pico/binary_info.h"
 #include "hardware/irq.h"
 #include "hardware/pwm.h"
+#include "hardware/pio.h"
+#include "hardware/clocks.h"
+#include "Dshot.pio.h"
 
 #include <ads1115.h> //ADS1115 Driver
 /*
@@ -21,6 +24,8 @@ const uint8_t SCL_PIN = 1;
 const uint8_t TX_PIN = 8;
 const uint8_t RX_PIN = 9;
 
+const uint8_t pio_pin = 22;
+
 const uint8_t led_pin = 25;
 
 const uint8_t NMOS_1 = 19;
@@ -32,6 +37,9 @@ const uint8_t PWM_1 = 6;
 const uint8_t PWM_2 = 7;
 
 struct ads1115_adc adc;
+
+PIO pio = pio0;
+uint sm = 0;
 
 int init()
 {
@@ -69,6 +77,17 @@ int init()
     pwm_set_gpio_level(NMOS_1,(2500));
     // Initialise ADC
     ads1115_init(I2C_PORT, ADS1115_I2C_ADDR, &adc);
+
+    sm = pio_claim_unused_sm(pio,true);
+
+    uint offset = pio_add_program(pio,&Dshot_program);
+
+    float div = 31.25f; //(float)clock_get_hz(clk_sys) / 40000.f;
+
+    Dshot_program_init(pio,sm,offset,pio_pin,div);
+
+    pio_sm_set_enabled(pio,sm,true);
+    //pio_sm_put_blocking(pio,sm,0x5555);
 }
 
 
@@ -79,13 +98,16 @@ int main() {
     // Loop forever
     while (true) {
 
+        
         // Blink LED
         printf("Blinking!\r\n");
         gpio_put(led_pin, true);
         sleep_ms(1000);
         gpio_put(led_pin, false);
-        sleep_ms(1000);
+        pio_sm_put_blocking(pio,sm,0x0000FE55);
+
         ads1115_readADC(&adc,&value);
-        printf("ADC value:%u Converted:%f",value,ads1115_convert_raw(&adc,value));
+        printf("ADC value:%u Converted:%f\r\n",value,((float)clock_get_hz(clk_sys)));
+        sleep_ms(1000);
     }
 }
