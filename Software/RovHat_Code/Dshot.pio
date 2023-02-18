@@ -6,12 +6,12 @@
 
 .wrap_target
 loop:
-    out x, 1        side 0 [7-1]      ; Read bit from OSR
+    out x, 1        side 0 [6]      ; Read bit from OSR
     jmp !x is_Zero  side 1 [10-1]      ; Check if bit is zero
 is_one:    
     jmp loop        side 1 [10-1]      ; Extra delay for one
 is_Zero:    
-    nop             side 0 [8-1]      ; Turn LED off and wait another 19 cycles
+    nop             side 0 [10-1]      ; Turn LED off and wait another 19 cycles
 .wrap
 
 % c-sdk {
