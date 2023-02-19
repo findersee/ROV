@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(freertos)
 add_subdirectory(lib/ads1115)
+add_subdirectory(lib/Dshot)
 
 # Creates a pico-sdk subdirectory in our project for the libraries
 pico_sdk_init()
@@ -33,12 +34,20 @@ pico_add_extra_outputs(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} 
     pico_stdlib
     ads1115
+    dshot
     freertos
     hardware_pwm
     hardware_pio
     hardware_clocks
 )
 
+target_sources(${PROJECT_NAME} 
+    PUBLIC 
+    ${CMAKE_CURRENT_LIST_DIR}/include/main.h
+    ${CMAKE_CURRENT_LIST_DIR}/include/tasks.c
+    ${CMAKE_CURRENT_LIST_DIR}/include/tasks.h
+)
+
 # Enable usb output, disable uart output
-pico_enable_stdio_usb(${PROJECT_NAME} 1)
-pico_enable_stdio_uart(${PROJECT_NAME} 0)
+pico_enable_stdio_usb(${PROJECT_NAME} 0)
+pico_enable_stdio_uart(${PROJECT_NAME} 1)

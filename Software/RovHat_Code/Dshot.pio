@@ -38,7 +38,7 @@ void Dshot_program_init(PIO pio, uint sm, uint offset, uint pin, float div) {
     sm_config_set_clkdiv(&c, div);
 
     // Set autopull
-    sm_config_set_out_shift(&c,true,true,16);
+    sm_config_set_out_shift(&c,false,true,16);
 
     // Load configuration and jump to start of the program
     pio_sm_init(pio, sm, offset, &c);
