@@ -59,29 +59,35 @@ void HW_setup()
 }
 
 int main() {
-
+    timer_hw->dbgpause = 0;
     HW_setup();
     uint16_t value;
     // Loop forever 
     uint16_t pwr=1047;
 
-    vTaskCode();
+    freeRTOS_setup();
+
+
+    xTaskCreate(ADC_task,"ADC_TASK",36,NULL,1,NULL);
+
+    printf("Starting scheduler...nr");
+    vTaskStartScheduler();
     while (true) {
 
         
         // Blink LED
         //printf("Blinking!\r\n");
-        gpio_put(led_pin, true);
-        sleep_ms(1000);
-        gpio_put(led_pin, false);
-        pio_sm_put_blocking(pio,sm[0],0x0000FE55);
-        pio_sm_put_blocking(pio,sm[1],0x000001AA);
-        pio_sm_put_blocking(pio,sm[2],dshot_parse_throttle(&pwr,false)<<16);
-        pio_sm_put_blocking(pio,sm[3],dshot_parse_cmd(DSHOT_CMD_SPIN_DIRECTION_NORMAL,false)<<16);
+        //gpio_put(led_pin, true);
+        //sleep_ms(1000);
+        //gpio_put(led_pin, false);
+        //pio_sm_put_blocking(pio,sm[0],0x0000FE55);
+        //pio_sm_put_blocking(pio,sm[1],0x000001AA);
+        //pio_sm_put_blocking(pio,sm[2],dshot_parse_throttle(&pwr,false)<<16);
+        //pio_sm_put_blocking(pio,sm[3],dshot_parse_cmd(DSHOT_CMD_SPIN_DIRECTION_NORMAL,false)<<16);
 
         //ads1115_readADC(&adc,&value);
         //printf("Parsed Dshot:%x\r\n",);
-        sleep_ms(1000);
+        //sleep_ms(1000);
     }
 }
 
@@ -155,6 +161,7 @@ void freeRTOS_setup(){
 
     msg_queue = xQueueCreate(5,sizeof(Ctrl_Message));
     ADC_queue = xQueueCreate(8,sizeof(ADC_Message));
+    motor_queue = xQueueCreate(1,sizeof(motorMessage));
     I2C_mutex = xSemaphoreCreateMutex();
 
 }
@@ -168,8 +175,10 @@ void ADC_task(){
     float conversion;
     while(ADC_queue == NULL);
     while(I2C_mutex == NULL);
-
+    TickType_t LastRun;
     ADC_Message aMessage;
+
+
     while(true){
         if( xSemaphoreTake( I2C_mutex, ( TickType_t ) portMAX_DELAY ) == pdTRUE ){
             switch(ch){
@@ -195,7 +204,22 @@ void ADC_task(){
             aMessage.channel = ch;
             ch++;
             ch = ch % 4;
-            xQueueSendToBack(ADC_queue,(void *) & aMessage, (TickType_t) 100);
-        
+            xQueueSendToBack(ADC_queue,(void *) & aMessage, (TickType_t) 10);
+            xTaskDelayUntil(&LastRun,100);
         }
+}
+
+void motorControl_task(){
+
+    motorMessage motorValues;
+    while(true){
+
+        xQueueReceive(motor_queue,(void *) &motorValues,(TickType_t) portMAX_DELAY);
+
+        pio_sm_put_blocking(pio,sm[0],dshot_parse_cmd(motorValues.Prop_Right,false));
+        pio_sm_put_blocking(pio,sm[1],dshot_parse_cmd(motorValues.Prop_Left,false));
+        pio_sm_put_blocking(pio,sm[2],dshot_parse_cmd(motorValues.Depth_Right,false));
+        pio_sm_put_blocking(pio,sm[3],dshot_parse_cmd(motorValues.Depth_Left,false));
+
+    }
 }
