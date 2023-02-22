@@ -2,6 +2,8 @@
 #define _MAIN_H_
 
 #include <stdio.h>
+#include <string.h>
+
 #include "pico/stdlib.h"
 #include "pico/binary_info.h"
 
@@ -56,7 +58,7 @@ uint sm[4];
 
 static int received_msgs = 0;
 
-
+void HW_setup();
 
 // UART Initialization
 void UART_RX();
@@ -86,19 +88,19 @@ typedef struct ADC_Message{
 }ADC_Message;
 
 typedef struct motorMessage{
-    uint16_t Prop_Right;
-    uint16_t Prop_Left;
-    uint16_t Depth_Right;
-    uint16_t Depth_Left;
+    uint16_t Right;
+    uint16_t Left;
 }motorMessage;
 
 void freeRTOS_setup();
 
 static SemaphoreHandle_t I2C_mutex;
+static SemaphoreHandle_t AutoDepth_mutex;
 
 static QueueHandle_t msg_queue;
 static QueueHandle_t ADC_queue;
-static QueueHandle_t motor_queue;
+static QueueHandle_t Propulsion_motor_queue;
+static QueueHandle_t Depth_motor_queue;
 
 void ADC_task();
 void motorControl_task();

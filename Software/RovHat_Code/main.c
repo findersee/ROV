@@ -1,6 +1,37 @@
 #include "include/main.h"
 #include "include/tasks.h"
 
+int main() {
+    timer_hw->dbgpause = 0;
+    HW_setup();
+    uint16_t value;
+    // Loop forever 
+    uint16_t pwr=1047;
+
+    freeRTOS_setup();
+
+
+    xTaskCreate(ADC_task,"ADC_TASK",36,NULL,1,NULL);
+
+    printf("Starting scheduler...nr");
+    vTaskStartScheduler();
+    while (true) {
+        asm("nop");
+    }
+}
+
+float ascToInt(char *point,uint8_t length){
+    
+    uint8_t out = 0;
+ 
+    out = (*point++ - 0x30)*100;
+    out = out + (*point++ - 0x30)*10;
+    out = out + (*point-0x30);
+
+    return (float)out/100;
+}
+
+
 void HW_setup()
 {
     // Initialize LED pin
@@ -58,39 +89,6 @@ void HW_setup()
     //pio_sm_put_blocking(pio,sm,0x5555);
 }
 
-int main() {
-    timer_hw->dbgpause = 0;
-    HW_setup();
-    uint16_t value;
-    // Loop forever 
-    uint16_t pwr=1047;
-
-    freeRTOS_setup();
-
-
-    xTaskCreate(ADC_task,"ADC_TASK",36,NULL,1,NULL);
-
-    printf("Starting scheduler...nr");
-    vTaskStartScheduler();
-    while (true) {
-
-        
-        // Blink LED
-        //printf("Blinking!\r\n");
-        //gpio_put(led_pin, true);
-        //sleep_ms(1000);
-        //gpio_put(led_pin, false);
-        //pio_sm_put_blocking(pio,sm[0],0x0000FE55);
-        //pio_sm_put_blocking(pio,sm[1],0x000001AA);
-        //pio_sm_put_blocking(pio,sm[2],dshot_parse_throttle(&pwr,false)<<16);
-        //pio_sm_put_blocking(pio,sm[3],dshot_parse_cmd(DSHOT_CMD_SPIN_DIRECTION_NORMAL,false)<<16);
-
-        //ads1115_readADC(&adc,&value);
-        //printf("Parsed Dshot:%x\r\n",);
-        //sleep_ms(1000);
-    }
-}
-
 // UART Code
 void UART_RX(){
     while (uart_is_readable(UART_ID)) {
@@ -103,7 +101,7 @@ void UART_RX(){
         else if(!buf_rdy && buf_cnt < 32){
             msg_buf[buf_cnt] = ch;
         }
-        else if(ch == ';'){
+        else if(ch == '\0'){
             msg_buf[buf_cnt] = ch;
             buf_rdy = true;
             received_msgs++;
@@ -158,12 +156,16 @@ void UART_INIT(){
 }
 
 void freeRTOS_setup(){
-
-    msg_queue = xQueueCreate(5,sizeof(Ctrl_Message));
+    //Initialize queues
+    msg_queue = xQueueCreate(4,sizeof(Ctrl_Message));
     ADC_queue = xQueueCreate(8,sizeof(ADC_Message));
-    motor_queue = xQueueCreate(1,sizeof(motorMessage));
-    I2C_mutex = xSemaphoreCreateMutex();
 
+    Propulsion_motor_queue = xQueueCreate(1,sizeof(motorMessage));
+    Depth_motor_queue = xQueueCreate(1,sizeof(motorMessage));
+
+    //Initialize mutex
+    I2C_mutex = xSemaphoreCreateMutex();
+    AutoDepth_mutex = xSemaphoreCreateMutex();
 }
 
 // Tasks
@@ -173,8 +175,12 @@ void ADC_task(){
     uint8_t ch=0;
     uint16_t raw=0;
     float conversion;
-    while(ADC_queue == NULL);
-    while(I2C_mutex == NULL);
+    while(ADC_queue == NULL){
+        vTaskDelay((TickType_t) 100);
+    }
+    while(I2C_mutex == NULL){
+        vTaskDelay((TickType_t) 100);
+    }
     TickType_t LastRun;
     ADC_Message aMessage;
 
@@ -211,15 +217,147 @@ void ADC_task(){
 
 void motorControl_task(){
 
-    motorMessage motorValues;
+    TickType_t LastRun;
+
+    motorMessage Propulsion_motorValues;
+    motorMessage Depth_motorValues;
+    
+
+    while(Propulsion_motor_queue == NULL){
+        vTaskDelay((TickType_t) 100);
+    }
+
+    while(Depth_motor_queue == NULL){
+        vTaskDelay((TickType_t) 100);
+    }
+
     while(true){
 
-        xQueueReceive(motor_queue,(void *) &motorValues,(TickType_t) portMAX_DELAY);
+        xQueueReceive(Propulsion_motor_queue,(void *) &Propulsion_motorValues,(TickType_t) 0); // Get new propulsion motor values, don't block if nothing new
 
-        pio_sm_put_blocking(pio,sm[0],dshot_parse_cmd(motorValues.Prop_Right,false));
-        pio_sm_put_blocking(pio,sm[1],dshot_parse_cmd(motorValues.Prop_Left,false));
-        pio_sm_put_blocking(pio,sm[2],dshot_parse_cmd(motorValues.Depth_Right,false));
-        pio_sm_put_blocking(pio,sm[3],dshot_parse_cmd(motorValues.Depth_Left,false));
+        xQueueReceive(Propulsion_motor_queue,(void *) &Depth_motorValues,(TickType_t) 0); // Get new propulsion motor values, don't block if nothing new
+
+        //Send updated values to right propulsion motor using Dshot
+        if(Propulsion_motorValues.Right != 1047)
+            pio_sm_put_blocking(pio,sm[0],dshot_parse_throttle(&Propulsion_motorValues.Right,false));
+        else
+            pio_sm_put_blocking(pio,sm[0],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+
+        //Send updated values to left propulsion motor using Dshot
+        if(Propulsion_motorValues.Left != 1047)
+            pio_sm_put_blocking(pio,sm[1],dshot_parse_throttle(&Propulsion_motorValues.Left,false));
+        else
+            pio_sm_put_blocking(pio,sm[1],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+
+        //Send updated values to right depth motor using Dshot
+        if(Depth_motorValues.Right != 1047)
+            pio_sm_put_blocking(pio,sm[2],dshot_parse_throttle(&Depth_motorValues.Right,false));
+        else
+            pio_sm_put_blocking(pio,sm[2],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+
+        //Send updated values to right depth motor using Dshot
+        if(Depth_motorValues.Left != 1047)
+            pio_sm_put_blocking(pio,sm[3],dshot_parse_throttle(&Depth_motorValues.Left,false));
+        else
+            pio_sm_put_blocking(pio,sm[3],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+
+
+
+        xTaskDelayUntil(&LastRun,( TickType_t )500); // Loop Motor update every 500 ms
+
+    }
+}
+
+void UART_Handler_Task(){
+
+
+    char uart_msg[33];
+
+    motorMessage PropMsg,DepthMsg;
+
+
+    while(msg_queue == NULL){
+        vTaskDelay((TickType_t) 100);
+    }
+
+    while(true){
+
+        xQueueReceive(msg_queue,(void *) &uart_msg,(TickType_t) portMAX_DELAY);
+
+        uint8_t msgLen = strnlen((char *)&uart_msg,33);
+        
+        for(uint8_t msgCnt=1;msgCnt < msgLen;msgLen++){
+            
+            switch (uart_msg[msgCnt])
+            {
+            case 'R':
+                msgCnt++;
+
+                PropMsg.Right = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
+                msgCnt = msgCnt + 2;
+                
+                break;
+                
+            case 'r':
+                msgCnt++;
+
+                PropMsg.Right = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);
+                msgCnt = msgCnt + 2;
+
+                break;
+
+            case 'L':
+                msgCnt++;
+
+                PropMsg.Left = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
+                msgCnt = msgCnt + 2;
+                
+                break;
+                
+            case 'l':
+                msgCnt++;
+
+                PropMsg.Left = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);
+                msgCnt = msgCnt + 2;
+
+                break;
+
+            case '+':
+                msgCnt++;
+
+                DepthMsg.Right = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
+                DepthMsg.Left = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
+                msgCnt = msgCnt + 2;
+                
+                break;
+                
+            case '-':
+                msgCnt++;
+
+                DepthMsg.Right = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);
+                DepthMsg.Left = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);                
+                msgCnt = msgCnt + 2;
+
+                break;
+
+            case 'I':
+
+                break;
+
+            case 'C':
+
+                break;
+
+            default:
+                break;
+            }
+
+
+
+        }
+
+        xQueueOverwrite(Propulsion_motor_queue,(void *) &PropMsg);
+        xQueueOverwrite(Depth_motor_queue,(void *) &DepthMsg);
 
     }
 }
