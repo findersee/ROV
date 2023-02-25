@@ -77,6 +77,9 @@ bool buf_rdy = true;
 
 
 // FreeRtos Stuff
+
+bool Auto_Hold_Active = false;
+
 typedef struct Ctrl_Message{
     char message[33];
     uint received;
@@ -102,6 +105,8 @@ static QueueHandle_t ADC_queue;
 static QueueHandle_t Propulsion_motor_queue;
 static QueueHandle_t Depth_motor_queue;
 
-void ADC_task();
-void motorControl_task();
+void ADC_task(void *pvParameters);
+void motorControl_task(void *pvParameters);
+void UART_RX_Handler_Task(void *pvParameters);
+void Depth_Hold_task(void *pvParameters);
 #endif

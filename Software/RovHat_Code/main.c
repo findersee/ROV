@@ -11,7 +11,7 @@ int main() {
     freeRTOS_setup();
 
 
-    xTaskCreate(ADC_task,"ADC_TASK",36,NULL,1,NULL);
+
 
     printf("Starting scheduler...nr");
     vTaskStartScheduler();
@@ -166,11 +166,20 @@ void freeRTOS_setup(){
     //Initialize mutex
     I2C_mutex = xSemaphoreCreateMutex();
     AutoDepth_mutex = xSemaphoreCreateMutex();
+
+
+    xTaskCreate(ADC_task,"ADC_TASK",configMINIMAL_STACK_SIZE,NULL,1,NULL);
+
+    xTaskCreate(motorControl_task,"MOTOR_TASK",configMINIMAL_STACK_SIZE,NULL,4,NULL);
+
+    xTaskCreate(UART_RX_Handler_Task,"UART HANDLER",configMINIMAL_STACK_SIZE,NULL,5,NULL);
+
+    xTaskCreate(Depth_Hold_task,"Auto Depth Hold",configMINIMAL_STACK_SIZE,NULL,4,NULL);
 }
 
 // Tasks
 
-void ADC_task(){
+void ADC_task(void *pvParameters){
 
     uint8_t ch=0;
     uint16_t raw=0;
@@ -215,7 +224,7 @@ void ADC_task(){
         }
 }
 
-void motorControl_task(){
+void motorControl_task(void *pvParameters){
 
     TickType_t LastRun;
 
@@ -268,7 +277,7 @@ void motorControl_task(){
     }
 }
 
-void UART_Handler_Task(){
+void UART_RX_Handler_Task(void *pvParameters){
 
 
     char uart_msg[33];
@@ -341,10 +350,26 @@ void UART_Handler_Task(){
                 break;
 
             case 'I':
+                msgCnt++;
 
+                pwm_set_gpio_level(NMOS_1,(uint16_t)(ascToInt((char *)&uart_msg[msgCnt],3)*2500.f));
+
+                msgCnt = msgCnt + 2; 
                 break;
 
             case 'C':
+                msgCnt++;
+                char cmd[6];
+                memset(cmd, '\0', sizeof(cmd));
+                strcpy((char *)&uart_msg[msgCnt],(char *)&cmd);
+
+                if(!strcmp(cmd,"HOLDA")){
+                    Auto_Hold_Active = true;
+                }
+                else if(!strcmp(cmd,"HOLDI")){
+                    Auto_Hold_Active = false;
+                }
+
 
                 break;
 
@@ -357,7 +382,59 @@ void UART_Handler_Task(){
         }
 
         xQueueOverwrite(Propulsion_motor_queue,(void *) &PropMsg);
-        xQueueOverwrite(Depth_motor_queue,(void *) &DepthMsg);
+        if(!Auto_Hold_Active)
+            xQueueOverwrite(Depth_motor_queue,(void *) &DepthMsg);
 
+    }
+}
+
+// Define the task function for the PID loop
+void Depth_Hold_task(void *pvParameters) {
+    // Initialize variables for the PID loop
+    float setpoint = 0.0f;
+    float input = 0.0f;
+    float output = 0.0f;
+    float kp = 1.0f; // Proportional gain
+    float ki = 0.5f; // Integral gain
+    float kd = 0.2f; // Derivative gain
+    float error = 0.0f;
+    float error_integral = 0.0f;
+    float error_derivative = 0.0f;
+    float last_error = 0.0f;
+    float sample_time = 0.1f; // Time between PID calculations in seconds
+    
+    motorMessage DepthMsg;
+
+    // Main loop for the PID controller
+    while (1) {
+        while(!Auto_Hold_Active){
+            vTaskDelay((TickType_t)1000);
+        };
+        // Read the input value from the sensor or other source
+        input = readInputValue();
+        
+        // Calculate the error between the setpoint and input
+        error = setpoint - input;
+        
+        // Calculate the integral of the error over time
+        error_integral += error * sample_time;
+        
+        // Calculate the derivative of the error with respect to time
+        error_derivative = (error - last_error) / sample_time;
+        
+        // Calculate the output value using the PID formula
+        output = kp * error + ki * error_integral + kd * error_derivative;
+        
+        // Save the current error for the next iteration
+        last_error = error;
+        
+        // Send the output value to the actuator or other destination
+        DepthMsg.Right = 100;
+        DepthMsg.Left = 100;
+        
+        // Wait for the next iteration of the PID loop
+        xQueueOverwrite(Depth_motor_queue,(void *) &DepthMsg);
+        vTaskDelay(pdMS_TO_TICKS(sample_time * 1000));
+        
     }
 }
