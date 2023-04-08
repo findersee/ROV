@@ -87,6 +87,8 @@ void HW_setup()
         pio_sm_set_enabled(pio,sm[cnt],true);
     }
     //pio_sm_put_blocking(pio,sm,0x5555);
+
+    UART_INIT();
 }
 
 // UART Code
@@ -97,14 +99,18 @@ void UART_RX(){
         if(ch == '#'){
             buf_cnt = 0;
             buf_rdy = false;
+            msg_buf[buf_cnt] = ch;
+            buf_cnt++;
         }
         else if(!buf_rdy && buf_cnt < 32){
             msg_buf[buf_cnt] = ch;
+            buf_cnt++;
         }
         else if(ch == '\0'){
             msg_buf[buf_cnt] = ch;
             buf_rdy = true;
             received_msgs++;
+            buf_cnt++;
         }
 
         if(buf_rdy){
@@ -141,7 +147,7 @@ void UART_INIT(){
     // We need to set up the handler first
     // Select correct interrupt for the UART we are using
     int UART_IRQ = UART_ID == uart0 ? UART0_IRQ : UART1_IRQ;
-
+    
     // And set up and enable the interrupt handlers
     irq_set_exclusive_handler(UART_IRQ, UART_RX);
     irq_set_enabled(UART_IRQ, true);
@@ -174,7 +180,7 @@ void freeRTOS_setup(){
 
     xTaskCreate(UART_RX_Handler_Task,"UART HANDLER",configMINIMAL_STACK_SIZE,NULL,5,NULL);
 
-    xTaskCreate(Depth_Hold_task,"Auto Depth Hold",configMINIMAL_STACK_SIZE,NULL,4,NULL);
+    //xTaskCreate(Depth_Hold_task,"Auto Depth Hold",configMINIMAL_STACK_SIZE,NULL,4,NULL);
 }
 
 // Tasks
@@ -411,7 +417,7 @@ void Depth_Hold_task(void *pvParameters) {
             vTaskDelay((TickType_t)1000);
         };
         // Read the input value from the sensor or other source
-        input = readInputValue();
+        //input = readInputValue();
         
         // Calculate the error between the setpoint and input
         error = setpoint - input;
