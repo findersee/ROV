@@ -23,7 +23,6 @@
 #include "hardware/clocks.h"
 #include "hardware/uart.h"
 
-#include "tasks.h"
 
 #define I2C_PORT i2c0
 #define I2C_FREQ 400000

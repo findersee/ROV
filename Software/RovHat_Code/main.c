@@ -1,5 +1,4 @@
-#include "include/main.h"
-#include "include/tasks.h"
+#include "main.h"
 
 int main() {
     timer_hw->dbgpause = 0;

@@ -41,12 +41,6 @@ target_link_libraries(${PROJECT_NAME}
     hardware_clocks
 )
 
-target_sources(${PROJECT_NAME} 
-    PUBLIC 
-    ${CMAKE_CURRENT_LIST_DIR}/include/main.h
-    ${CMAKE_CURRENT_LIST_DIR}/include/tasks.c
-    ${CMAKE_CURRENT_LIST_DIR}/include/tasks.h
-)
 
 # Enable usb output, disable uart output
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
