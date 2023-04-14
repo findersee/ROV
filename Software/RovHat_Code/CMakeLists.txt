@@ -39,9 +39,11 @@ target_link_libraries(${PROJECT_NAME}
     hardware_pwm
     hardware_pio
     hardware_clocks
+    hardware_dma
+    hardware_i2c
 )
 
 
 # Enable usb output, disable uart output
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
-pico_enable_stdio_uart(${PROJECT_NAME} 1)
+pico_enable_stdio_uart(${PROJECT_NAME} 0)

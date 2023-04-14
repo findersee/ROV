@@ -22,6 +22,8 @@
 #include "hardware/pio.h"
 #include "hardware/clocks.h"
 #include "hardware/uart.h"
+#include "hardware/i2c.h"
+#include "hardware/dma.h" 
 
 
 #define I2C_PORT i2c0
@@ -70,7 +72,25 @@ void UART_INIT();
 #define STOP_BITS 1
 #define PARITY    UART_PARITY_NONE
 
-char msg_buf[33];
+#define rxBufSize 64
+
+//__attribute__((aligned(64)))
+//static char msg_buf[64];
+typedef struct UART_buffer{
+    uint8_t head;
+    uint8_t tail;
+    uint8_t bufSize;
+    char data[rxBufSize];
+}UART_buffer_t;
+UART_buffer_t rxBuffer;
+
+
+
+uint8_t bufferSize(UART_buffer_t *buffer);
+bool bufferEmpty(UART_buffer_t *buffer);
+void bufferTake(UART_buffer_t *buffer,char *dst, uint8_t elements);
+
+
 uint8_t buf_cnt;
 bool buf_rdy = true;
 
@@ -82,17 +102,23 @@ bool Auto_Hold_Active = false;
 typedef struct Ctrl_Message{
     char message[33];
     uint received;
-}Ctrl_Message;
+}Ctrl_Message_t;
 
 typedef struct ADC_Message{
     float voltage;
     uint8_t channel;
-}ADC_Message;
+}ADC_Message_t;
 
 typedef struct motorMessage{
     uint16_t Right;
     uint16_t Left;
-}motorMessage;
+}motorMessage_t;
+
+typedef struct AutoHoldMessage{
+    float Level;
+    bool Active;
+}AutoHoldMessage_t;
+
 
 void freeRTOS_setup();
 
@@ -103,6 +129,8 @@ static QueueHandle_t msg_queue;
 static QueueHandle_t ADC_queue;
 static QueueHandle_t Propulsion_motor_queue;
 static QueueHandle_t Depth_motor_queue;
+
+static QueueHandle_t AutoHold_queue;
 
 void ADC_task(void *pvParameters);
 void motorControl_task(void *pvParameters);

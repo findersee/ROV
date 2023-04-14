@@ -1,6 +1,6 @@
 #include "main.h"
 
-int main() {
+    int main() {
     timer_hw->dbgpause = 0;
     HW_setup();
     uint16_t value;
@@ -38,7 +38,8 @@ void HW_setup()
     gpio_set_dir(led_pin, GPIO_OUT);
 
     // Initialize chosen serial port
-    stdio_init_all();
+    //stdio_init_all();
+    //stdio_uart_init_full(uart0,115200,)
 
     // Initialise I2C
     i2c_init(I2C_PORT, I2C_FREQ);
@@ -90,32 +91,31 @@ void HW_setup()
     UART_INIT();
 }
 
+uint8_t bufferSize(UART_buffer_t *buffer){
+    if(buffer->head < buffer->tail)
+        return buffer->tail-(buffer->head+64);
+    return buffer->head-buffer->tail;
+
+}
+
+bool bufferEmpty(UART_buffer_t *buffer){
+    return buffer->tail == buffer->head;
+}
+
+void bufferTake(UART_buffer_t *buffer, char *dst, uint8_t elements){
+
+    for(uint8_t i;i<elements;i++){
+        dst[i] = buffer->data[buffer->tail];
+        buffer->tail=(buffer->tail+1)%rxBufSize;
+    }
+}
+
 // UART Code
 void UART_RX(){
     while (uart_is_readable(UART_ID)) {
-        uint8_t ch = uart_getc(UART_ID);
-        
-        if(ch == '#'){
-            buf_cnt = 0;
-            buf_rdy = false;
-            msg_buf[buf_cnt] = ch;
-            buf_cnt++;
-        }
-        else if(!buf_rdy && buf_cnt < 32){
-            msg_buf[buf_cnt] = ch;
-            buf_cnt++;
-        }
-        else if(ch == '\0'){
-            msg_buf[buf_cnt] = ch;
-            buf_rdy = true;
-            received_msgs++;
-            buf_cnt++;
-        }
-
-        if(buf_rdy){
-            xQueueSendFromISR(msg_queue,(void *) &msg_buf,NULL);
-        }
-        
+        //uint8_t ch = uart_getc(UART_ID);
+        rxBuffer.data[rxBuffer.head] = uart_getc(UART_ID);
+        rxBuffer.head = ((rxBuffer.head+1)%rxBufSize);
     }
 }
 
@@ -154,23 +154,32 @@ void UART_INIT(){
     // Now enable the UART to send interrupts - RX only
     uart_set_irq_enables(UART_ID, true, false);
 
+    rxBuffer.bufSize = 64;
+    rxBuffer.tail = 0;
+    rxBuffer.head = 0;
+
     // OK, all set up.
     // Lets send a basic string out, and then run a loop and wait for RX interrupts
     // The handler will count them, but also reflect the incoming data back with a slight change!
     uart_puts(UART_ID, "\nHello, uart interrupts\n");
+
+
 }
 
 void freeRTOS_setup(){
     //Initialize queues
-    msg_queue = xQueueCreate(4,sizeof(Ctrl_Message));
-    ADC_queue = xQueueCreate(8,sizeof(ADC_Message));
+    ADC_queue = xQueueCreate(8,sizeof(ADC_Message_t));
 
-    Propulsion_motor_queue = xQueueCreate(1,sizeof(motorMessage));
-    Depth_motor_queue = xQueueCreate(1,sizeof(motorMessage));
+    Propulsion_motor_queue = xQueueCreate(1,sizeof(motorMessage_t));
+    Depth_motor_queue = xQueueCreate(1,sizeof(motorMessage_t));
+
+    AutoHold_queue = xQueueCreate(4,sizeof(AutoHoldMessage_t));    
 
     //Initialize mutex
     I2C_mutex = xSemaphoreCreateMutex();
     AutoDepth_mutex = xSemaphoreCreateMutex();
+
+
 
 
     xTaskCreate(ADC_task,"ADC_TASK",configMINIMAL_STACK_SIZE,NULL,1,NULL);
@@ -196,7 +205,7 @@ void ADC_task(void *pvParameters){
         vTaskDelay((TickType_t) 100);
     }
     TickType_t LastRun;
-    ADC_Message aMessage;
+    ADC_Message_t aMessage;
 
 
     while(true){
@@ -233,9 +242,14 @@ void motorControl_task(void *pvParameters){
 
     TickType_t LastRun;
 
-    motorMessage Propulsion_motorValues;
-    motorMessage Depth_motorValues;
+    motorMessage_t Propulsion_motorValues;
+    motorMessage_t Depth_motorValues;
     
+    Propulsion_motorValues.Left = 1047;
+    Propulsion_motorValues.Right = 1047;
+
+    Depth_motorValues.Left = 1047;
+    Depth_motorValues.Right = 1047;
 
     while(Propulsion_motor_queue == NULL){
         vTaskDelay((TickType_t) 100);
@@ -249,7 +263,7 @@ void motorControl_task(void *pvParameters){
 
         xQueueReceive(Propulsion_motor_queue,(void *) &Propulsion_motorValues,(TickType_t) 0); // Get new propulsion motor values, don't block if nothing new
 
-        xQueueReceive(Propulsion_motor_queue,(void *) &Depth_motorValues,(TickType_t) 0); // Get new propulsion motor values, don't block if nothing new
+        xQueueReceive(Depth_motor_queue,(void *) &Depth_motorValues,(TickType_t) 0); // Get new propulsion motor values, don't block if nothing new
 
         //Send updated values to right propulsion motor using Dshot
         if(Propulsion_motorValues.Right != 1047)
@@ -282,109 +296,149 @@ void motorControl_task(void *pvParameters){
     }
 }
 
+
+
 void UART_RX_Handler_Task(void *pvParameters){
 
 
     char uart_msg[33];
 
-    motorMessage PropMsg,DepthMsg;
+    motorMessage_t PropMsg,DepthMsg;
+
+    AutoHoldMessage_t AutoHoldMsg;
+
+    AutoHoldMsg.Active = false;
+    AutoHoldMsg.Level = 1000.f;
 
 
-    while(msg_queue == NULL){
+    PropMsg.Left = 1047;
+    PropMsg.Right = 1047;
+
+    DepthMsg.Left = 1047;
+    DepthMsg.Right = 1047;
+
+    while(AutoHold_queue == NULL){
         vTaskDelay((TickType_t) 100);
     }
 
     while(true){
 
-        xQueueReceive(msg_queue,(void *) &uart_msg,(TickType_t) portMAX_DELAY);
+        // Message format #R100L100+100I100C:(CMD)\0
 
-        uint8_t msgLen = strnlen((char *)&uart_msg,33);
         
-        for(uint8_t msgCnt=1;msgCnt < msgLen;msgLen++){
+        if(bufferSize(&rxBuffer)>4){
+            memset (&uart_msg,0,sizeof(uart_msg));
+            bufferTake(&rxBuffer,(char *)&uart_msg,bufferSize(&rxBuffer));
             
-            switch (uart_msg[msgCnt])
-            {
-            case 'R':
-                msgCnt++;
+            uint8_t msgLen = strnlen((char *)&uart_msg,33);
+            uint8_t msgCnt = 0;
+            for(;msgCnt < msgLen;msgCnt++){
+                if(uart_msg[msgCnt] == '#')
+                    break;
+            }
 
-                PropMsg.Right = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
-                msgCnt = msgCnt + 2;
+            for(;msgCnt < msgLen;msgCnt++){
                 
-                break;
-                
-            case 'r':
-                msgCnt++;
+                switch (uart_msg[msgCnt])
+                {
+                case 'R':
+                    msgCnt++;
 
-                PropMsg.Right = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);
-                msgCnt = msgCnt + 2;
+                    PropMsg.Right = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
+                    msgCnt += 2;
+                    
+                    break;
+                    
+                case 'r':
+                    msgCnt++;
 
-                break;
+                    PropMsg.Right = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);
+                    msgCnt += 2;
 
-            case 'L':
-                msgCnt++;
+                    break;
 
-                PropMsg.Left = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
-                msgCnt = msgCnt + 2;
-                
-                break;
-                
-            case 'l':
-                msgCnt++;
+                case 'L':
+                    msgCnt++;
 
-                PropMsg.Left = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);
-                msgCnt = msgCnt + 2;
+                    PropMsg.Left = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
+                    msgCnt += 2;
+                    
+                    break;
+                    
+                case 'l':
+                    msgCnt++;
 
-                break;
+                    PropMsg.Left = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);
+                    msgCnt += 2;
 
-            case '+':
-                msgCnt++;
+                    break;
 
-                DepthMsg.Right = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
-                DepthMsg.Left = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
-                msgCnt = msgCnt + 2;
-                
-                break;
-                
-            case '-':
-                msgCnt++;
+                case '+':
+                    msgCnt++;
 
-                DepthMsg.Right = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);
-                DepthMsg.Left = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);                
-                msgCnt = msgCnt + 2;
+                    DepthMsg.Right = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
+                    DepthMsg.Left = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
+                    msgCnt += 2;
+                    
+                    break;
+                    
+                case '-':
+                    msgCnt++;
 
-                break;
+                    DepthMsg.Right = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);
+                    DepthMsg.Left = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);                
+                    msgCnt += 2;
 
-            case 'I':
-                msgCnt++;
+                    break;
 
-                pwm_set_gpio_level(NMOS_1,(uint16_t)(ascToInt((char *)&uart_msg[msgCnt],3)*2500.f));
+                case 'I':
+                    msgCnt++;
 
-                msgCnt = msgCnt + 2; 
-                break;
+                    pwm_set_gpio_level(NMOS_1,(uint16_t)(ascToInt((char *)&uart_msg[msgCnt],3)*2500.f));
 
-            case 'C':
-                msgCnt++;
-                char cmd[6];
-                memset(cmd, '\0', sizeof(cmd));
-                strcpy((char *)&uart_msg[msgCnt],(char *)&cmd);
+                    msgCnt += 2; 
+                    break;
 
-                if(!strcmp(cmd,"HOLDA")){
-                    Auto_Hold_Active = true;
+                case 'C':
+                    msgCnt += 2;
+                    
+                    /*
+                    Commands:
+                    H = Enable Autohold
+                    h = Disable Autohold
+                    C = Calibrate IMU
+                    P = Reset Pressure
+                    */
+
+
+
+                    switch (uart_msg[msgCnt])
+                    {
+                    case 'H':
+                        AutoHoldMsg.Active = true;
+                        AutoHoldMsg.Level = 1200.f;
+                        xQueueSend(AutoHold_queue,(void *) &AutoHoldMsg,(TickType_t)0);
+                        break;
+                    case 'h':
+                        AutoHoldMsg.Active = false;
+                        AutoHoldMsg.Level = 800.f;
+                        xQueueSend(AutoHold_queue,(void *) &AutoHoldMsg,(TickType_t)0);
+                        break;
+                    default:
+                        break;
+                    }
+                    msgCnt ++;
+                    break;
+
+                default:
+                    break;
                 }
-                else if(!strcmp(cmd,"HOLDI")){
-                    Auto_Hold_Active = false;
-                }
-
-
-                break;
-
-            default:
-                break;
             }
 
 
-
         }
+        else
+            vTaskDelay((TickType_t) 100);
 
         xQueueOverwrite(Propulsion_motor_queue,(void *) &PropMsg);
         if(!Auto_Hold_Active)
@@ -408,10 +462,23 @@ void Depth_Hold_task(void *pvParameters) {
     float last_error = 0.0f;
     float sample_time = 0.1f; // Time between PID calculations in seconds
     
-    motorMessage DepthMsg;
+    motorMessage_t DepthMsg;
+
+    AutoHoldMessage_t HoldMsg;
+    
+    AutoHoldMessage_t AutoHoldMsg;
+
+
+    while(AutoHold_queue == NULL){
+        vTaskDelay((TickType_t) 100);
+    }
+
 
     // Main loop for the PID controller
     while (1) {
+
+        xQueueReceive(AutoHold_queue,(void *) &AutoHoldMsg,(TickType_t) 0);
+
         while(!Auto_Hold_Active){
             vTaskDelay((TickType_t)1000);
         };
@@ -434,11 +501,14 @@ void Depth_Hold_task(void *pvParameters) {
         last_error = error;
         
         // Send the output value to the actuator or other destination
-        DepthMsg.Right = 100;
-        DepthMsg.Left = 100;
+        DepthMsg.Right = 1047;
+        DepthMsg.Left = 1047;
         
         // Wait for the next iteration of the PID loop
+        
+        if(AutoHoldMsg.Active){
         xQueueOverwrite(Depth_motor_queue,(void *) &DepthMsg);
+        }
         vTaskDelay(pdMS_TO_TICKS(sample_time * 1000));
         
     }
