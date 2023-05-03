@@ -1,17 +1,16 @@
 .program Dshot
 
-; Turn on LED for 100 cycles and off for 100 cycles.
-; At 2 kHz, this will toggle pin at 10 Hz (200 cycles / 2000 Hz = 0.1 sec)
+; DShot Encoder
 .side_set 1
 
 .wrap_target
 loop:
-    out x, 1        side 0 [6]      ; Read bit from OSR
+    out x, 1        side 0 [6]      ; Read bit from OSR wait 6 cycles
     jmp !x is_Zero  side 1 [10-1]      ; Check if bit is zero
 is_one:    
     jmp loop        side 1 [10-1]      ; Extra delay for one
 is_Zero:    
-    nop             side 0 [10-1]      ; Turn LED off and wait another 19 cycles
+    nop             side 0 [10-1]      ; set to zero for 10 cycles
 .wrap
 
 % c-sdk {

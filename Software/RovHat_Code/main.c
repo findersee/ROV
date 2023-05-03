@@ -76,7 +76,7 @@ void HW_setup()
 
     uint offset = pio_add_program(pio,&Dshot_program);
 
-    float div = 31.25f; //(float)clock_get_hz(clk_sys) / 40000.f;
+    float div = 7.8125f; // DSHOT600 Divider
 
     Dshot_program_init(pio,sm[0],offset,Prop_Right,div);
     Dshot_program_init(pio,sm[1],offset,Prop_Left,div);
@@ -93,7 +93,7 @@ void HW_setup()
 
 uint8_t bufferSize(UART_buffer_t *buffer){
     if(buffer->head < buffer->tail)
-        return buffer->tail-(buffer->head+64);
+        return (buffer->head+64)-buffer->tail;
     return buffer->head-buffer->tail;
 
 }
@@ -261,35 +261,43 @@ void motorControl_task(void *pvParameters){
 
     while(true){
 
-        xQueueReceive(Propulsion_motor_queue,(void *) &Propulsion_motorValues,(TickType_t) 0); // Get new propulsion motor values, don't block if nothing new
+        if(xQueueReceive(Propulsion_motor_queue,(void *) &Propulsion_motorValues,(TickType_t) 0) == pdTRUE){ // Get new propulsion motor values, don't block if nothing new
+            //Send updated values to right propulsion motor using Dshot
+            if(Propulsion_motorValues.Right != 999)
+                //pio_sm_put_blocking(pio,sm[0], dshot_parse_throttle(&Propulsion_motorValues.Right,false));
+                pio_sm_put_blocking(pio,sm[0],dshot_parse_throttle((uint16_t *)998,false));
+            else
+                pio_sm_put_blocking(pio,sm[0],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
 
-        xQueueReceive(Depth_motor_queue,(void *) &Depth_motorValues,(TickType_t) 0); // Get new propulsion motor values, don't block if nothing new
+            //Send updated values to left propulsion motor using Dshot
+            if(Propulsion_motorValues.Left != 999)
+                //pio_sm_put_blocking(pio,sm[1],dshot_parse_throttle(&Propulsion_motorValues.Left,false));
+                asm("nop");
+            else
+                //pio_sm_put_blocking(pio,sm[1],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+                asm("nop");
 
-        //Send updated values to right propulsion motor using Dshot
-        if(Propulsion_motorValues.Right != 1047)
-            pio_sm_put_blocking(pio,sm[0],dshot_parse_throttle(&Propulsion_motorValues.Right,false));
-        else
-            pio_sm_put_blocking(pio,sm[0],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+        } 
 
-        //Send updated values to left propulsion motor using Dshot
-        if(Propulsion_motorValues.Left != 1047)
-            pio_sm_put_blocking(pio,sm[1],dshot_parse_throttle(&Propulsion_motorValues.Left,false));
-        else
-            pio_sm_put_blocking(pio,sm[1],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+        if(xQueueReceive(Depth_motor_queue,(void *) &Depth_motorValues,(TickType_t) 0) == pdTRUE){ // Get new depth motor values, don't block if nothing new
 
-        //Send updated values to right depth motor using Dshot
-        if(Depth_motorValues.Right != 1047)
-            pio_sm_put_blocking(pio,sm[2],dshot_parse_throttle(&Depth_motorValues.Right,false));
-        else
-            pio_sm_put_blocking(pio,sm[2],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+            //Send updated values to right depth motor using Dshot
+            if(Depth_motorValues.Right != 999)
+                //pio_sm_put_blocking(pio,sm[2],dshot_parse_throttle(&Depth_motorValues.Right,false));
+                asm("nop");
+            else
+                //pio_sm_put_blocking(pio,sm[2],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+                asm("nop");
 
-        //Send updated values to right depth motor using Dshot
-        if(Depth_motorValues.Left != 1047)
-            pio_sm_put_blocking(pio,sm[3],dshot_parse_throttle(&Depth_motorValues.Left,false));
-        else
-            pio_sm_put_blocking(pio,sm[3],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+            //Send updated values to right depth motor using Dshot
+            if(Depth_motorValues.Left != 999)
+                //pio_sm_put_blocking(pio,sm[3],dshot_parse_throttle(&Depth_motorValues.Left,false));
+                asm("nop");
+            else
+                //pio_sm_put_blocking(pio,sm[3],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+                asm("nop");
 
-
+        } 
 
         xTaskDelayUntil(&LastRun,( TickType_t )500); // Loop Motor update every 500 ms
 
@@ -311,11 +319,11 @@ void UART_RX_Handler_Task(void *pvParameters){
     AutoHoldMsg.Level = 1000.f;
 
 
-    PropMsg.Left = 1047;
-    PropMsg.Right = 1047;
+    PropMsg.Left = 999;
+    PropMsg.Right = 999;
 
-    DepthMsg.Left = 1047;
-    DepthMsg.Right = 1047;
+    DepthMsg.Left = 999;
+    DepthMsg.Right = 999;
 
     while(AutoHold_queue == NULL){
         vTaskDelay((TickType_t) 100);
@@ -435,14 +443,16 @@ void UART_RX_Handler_Task(void *pvParameters){
                 }
             }
 
+            xQueueOverwrite(Propulsion_motor_queue,(void *) &PropMsg);
+            if(!Auto_Hold_Active)
+                xQueueOverwrite(Depth_motor_queue,(void *) &DepthMsg);
+
 
         }
         else
             vTaskDelay((TickType_t) 100);
 
-        xQueueOverwrite(Propulsion_motor_queue,(void *) &PropMsg);
-        if(!Auto_Hold_Active)
-            xQueueOverwrite(Depth_motor_queue,(void *) &DepthMsg);
+
 
     }
 }
