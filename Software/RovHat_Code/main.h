@@ -24,7 +24,7 @@
 #include "hardware/uart.h"
 #include "hardware/i2c.h"
 #include "hardware/dma.h" 
-
+#include "hardware/timer.h"
 
 #define I2C_PORT i2c0
 #define I2C_FREQ 400000
@@ -56,6 +56,14 @@ struct ads1115_adc adc;
 
 PIO pio = pio0;
 uint sm[4];
+uint32_t sm_data[4];
+
+repeating_timer_t DShot_Timer;
+
+bool Dshot_timer_callback(repeating_timer_t *rt);
+
+
+
 
 static int received_msgs = 0;
 

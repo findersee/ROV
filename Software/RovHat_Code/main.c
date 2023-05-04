@@ -1,6 +1,6 @@
 #include "main.h"
 
-    int main() {
+int main() {
     timer_hw->dbgpause = 0;
     HW_setup();
     uint16_t value;
@@ -66,8 +66,11 @@ void HW_setup()
     pwm_set_gpio_level(NMOS_3,(2500/4));
     pwm_set_gpio_level(NMOS_2,(2500/2));
     pwm_set_gpio_level(NMOS_1,(2500));
-    // Initialise ADC
+    // Initialize ADC
     ads1115_init(I2C_PORT, ADS1115_I2C_ADDR, &adc);
+
+
+    //Initialize PIO and Timer for Dshot
 
     sm[0] = pio_claim_unused_sm(pio,true);
     sm[1] = pio_claim_unused_sm(pio,true);
@@ -76,7 +79,7 @@ void HW_setup()
 
     uint offset = pio_add_program(pio,&Dshot_program);
 
-    float div = 7.8125f; // DSHOT600 Divider
+    float div = 15.625f; // DSHOT300 Divider
 
     Dshot_program_init(pio,sm[0],offset,Prop_Right,div);
     Dshot_program_init(pio,sm[1],offset,Prop_Left,div);
@@ -86,10 +89,31 @@ void HW_setup()
     for(uint8_t cnt=0;cnt<4;cnt++){
         pio_sm_set_enabled(pio,sm[cnt],true);
     }
+
+
+
+    if (!add_repeating_timer_ms(-2, Dshot_timer_callback, NULL, &DShot_Timer)) {
+        //printf("Failed to add timer\n");
+        while(true){
+        asm("nop");
+        }
+    }    
+
+
     //pio_sm_put_blocking(pio,sm,0x5555);
 
     UART_INIT();
 }
+
+bool Dshot_timer_callback(repeating_timer_t *rt) {
+
+    for(uint8_t cnt=0;cnt<4;cnt++){
+        pio_sm_put_blocking(pio,sm[cnt],sm_data[cnt]);
+    }
+
+    return true;
+}
+
 
 uint8_t bufferSize(UART_buffer_t *buffer){
     if(buffer->head < buffer->tail)
@@ -259,22 +283,27 @@ void motorControl_task(void *pvParameters){
         vTaskDelay((TickType_t) 100);
     }
 
+    sm_data[0] = dshot_parse_cmd(DSHOT_CMD_3D_MODE_ON,false);
+    vTaskDelay((TickType_t) 2);
+    sm_data[0] = dshot_parse_cmd(DSHOT_CMD_BEEP1,false);
+    vTaskDelay((TickType_t)1);
+    sm_data[0] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+
     while(true){
 
         if(xQueueReceive(Propulsion_motor_queue,(void *) &Propulsion_motorValues,(TickType_t) 0) == pdTRUE){ // Get new propulsion motor values, don't block if nothing new
             //Send updated values to right propulsion motor using Dshot
             if(Propulsion_motorValues.Right != 999)
-                //pio_sm_put_blocking(pio,sm[0], dshot_parse_throttle(&Propulsion_motorValues.Right,false));
-                pio_sm_put_blocking(pio,sm[0],dshot_parse_throttle((uint16_t *)998,false));
+                sm_data[0] = dshot_parse_throttle(&Propulsion_motorValues.Right,false);
             else
-                pio_sm_put_blocking(pio,sm[0],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+                sm_data[0] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
 
             //Send updated values to left propulsion motor using Dshot
             if(Propulsion_motorValues.Left != 999)
-                //pio_sm_put_blocking(pio,sm[1],dshot_parse_throttle(&Propulsion_motorValues.Left,false));
+                //sm_data[1] = dshot_parse_throttle(&Propulsion_motorValues.Left,false);
                 asm("nop");
             else
-                //pio_sm_put_blocking(pio,sm[1],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+                //sm_data[1] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
                 asm("nop");
 
         } 
@@ -283,23 +312,23 @@ void motorControl_task(void *pvParameters){
 
             //Send updated values to right depth motor using Dshot
             if(Depth_motorValues.Right != 999)
-                //pio_sm_put_blocking(pio,sm[2],dshot_parse_throttle(&Depth_motorValues.Right,false));
+                //sm_data[2] = dshot_parse_throttle(&Propulsion_motorValues.Left,false);
                 asm("nop");
             else
-                //pio_sm_put_blocking(pio,sm[2],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+                //sm_data[2] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
                 asm("nop");
 
             //Send updated values to right depth motor using Dshot
             if(Depth_motorValues.Left != 999)
-                //pio_sm_put_blocking(pio,sm[3],dshot_parse_throttle(&Depth_motorValues.Left,false));
+                //sm_data[3] = dshot_parse_throttle(&Propulsion_motorValues.Left,false);
                 asm("nop");
             else
-                //pio_sm_put_blocking(pio,sm[3],dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false));
+                //sm_data[3] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
                 asm("nop");
 
         } 
 
-        xTaskDelayUntil(&LastRun,( TickType_t )500); // Loop Motor update every 500 ms
+        xTaskDelayUntil(&LastRun,( TickType_t )10); // Loop Motor update every 10 ms
 
     }
 }
