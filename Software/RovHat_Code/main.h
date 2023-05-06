@@ -128,6 +128,8 @@ typedef struct AutoHoldMessage{
 }AutoHoldMessage_t;
 
 
+TaskHandle_t uartHandle;
+
 void freeRTOS_setup();
 
 static SemaphoreHandle_t I2C_mutex;

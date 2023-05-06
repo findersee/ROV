@@ -19,7 +19,7 @@ int main() {
     }
 }
 
-float ascToInt(char *point,uint8_t length){
+float ascToFloat(char *point,uint8_t length){
     
     uint8_t out = 0;
  
@@ -136,11 +136,19 @@ void bufferTake(UART_buffer_t *buffer, char *dst, uint8_t elements){
 
 // UART Code
 void UART_RX(){
-    while (uart_is_readable(UART_ID)) {
-        //uint8_t ch = uart_getc(UART_ID);
-        rxBuffer.data[rxBuffer.head] = uart_getc(UART_ID);
-        rxBuffer.head = ((rxBuffer.head+1)%rxBufSize);
-    }
+    //BaseType_t xYieldRequired;
+    
+    //if(uart_is_readable(UART_ID)){
+        while (uart_is_readable(UART_ID)) {
+            //uint8_t ch = uart_getc(UART_ID);
+            rxBuffer.data[rxBuffer.head] = uart_getc(UART_ID);
+            rxBuffer.head = ((rxBuffer.head+1)%rxBufSize);
+            
+        }
+        //if(uart_getc(UART_ID) == '\r')
+        //    xYieldRequired = xTaskResumeFromISR(uartHandle);
+        //portYIELD_FROM_ISR( xYieldRequired );
+    //}
 }
 
 void UART_INIT(){
@@ -210,7 +218,7 @@ void freeRTOS_setup(){
 
     xTaskCreate(motorControl_task,"MOTOR_TASK",configMINIMAL_STACK_SIZE,NULL,4,NULL);
 
-    xTaskCreate(UART_RX_Handler_Task,"UART HANDLER",configMINIMAL_STACK_SIZE,NULL,5,NULL);
+    xTaskCreate(UART_RX_Handler_Task,"UART HANDLER",configMINIMAL_STACK_SIZE,NULL,5,&uartHandle);
 
     //xTaskCreate(Depth_Hold_task,"Auto Depth Hold",configMINIMAL_STACK_SIZE,NULL,4,NULL);
 }
@@ -275,6 +283,10 @@ void motorControl_task(void *pvParameters){
     Depth_motorValues.Left = 1047;
     Depth_motorValues.Right = 1047;
 
+
+    uint8_t propulsion_cnt = 0;
+    uint8_t depth_cnt = 0;
+
     while(Propulsion_motor_queue == NULL){
         vTaskDelay((TickType_t) 100);
     }
@@ -283,52 +295,54 @@ void motorControl_task(void *pvParameters){
         vTaskDelay((TickType_t) 100);
     }
 
-    sm_data[0] = dshot_parse_cmd(DSHOT_CMD_3D_MODE_ON,false);
-    vTaskDelay((TickType_t) 2);
-    sm_data[0] = dshot_parse_cmd(DSHOT_CMD_BEEP1,false);
-    vTaskDelay((TickType_t)1);
-    sm_data[0] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
-
     while(true){
 
         if(xQueueReceive(Propulsion_motor_queue,(void *) &Propulsion_motorValues,(TickType_t) 0) == pdTRUE){ // Get new propulsion motor values, don't block if nothing new
             //Send updated values to right propulsion motor using Dshot
-            if(Propulsion_motorValues.Right != 999)
-                sm_data[0] = dshot_parse_throttle(&Propulsion_motorValues.Right,false);
-            else
+            if(Propulsion_motorValues.Right == 1000 || Propulsion_motorValues.Right == 0)
                 sm_data[0] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+            else
+                sm_data[0] = dshot_parse_throttle(&Propulsion_motorValues.Right,false);
+                
 
             //Send updated values to left propulsion motor using Dshot
-            if(Propulsion_motorValues.Left != 999)
-                //sm_data[1] = dshot_parse_throttle(&Propulsion_motorValues.Left,false);
-                asm("nop");
+            if(Propulsion_motorValues.Left == 1000 || Propulsion_motorValues.Left == 0)
+                sm_data[1] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
             else
-                //sm_data[1] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
-                asm("nop");
-
+                sm_data[1] = dshot_parse_throttle(&Propulsion_motorValues.Left,false);
+            propulsion_cnt = 0;
         } 
 
         if(xQueueReceive(Depth_motor_queue,(void *) &Depth_motorValues,(TickType_t) 0) == pdTRUE){ // Get new depth motor values, don't block if nothing new
 
             //Send updated values to right depth motor using Dshot
-            if(Depth_motorValues.Right != 999)
-                //sm_data[2] = dshot_parse_throttle(&Propulsion_motorValues.Left,false);
-                asm("nop");
+            if(Depth_motorValues.Right != 1000 && Depth_motorValues.Right != 0)
+                sm_data[2] = dshot_parse_throttle(&Propulsion_motorValues.Left,false);
             else
-                //sm_data[2] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
-                asm("nop");
+                sm_data[2] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
 
             //Send updated values to right depth motor using Dshot
-            if(Depth_motorValues.Left != 999)
-                //sm_data[3] = dshot_parse_throttle(&Propulsion_motorValues.Left,false);
-                asm("nop");
+            if(Depth_motorValues.Left != 1000 && Depth_motorValues.Left != 0)
+                sm_data[3] = dshot_parse_throttle(&Propulsion_motorValues.Left,false);
             else
-                //sm_data[3] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
-                asm("nop");
+                sm_data[3] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
 
+            depth_cnt = 0;
         } 
 
-        xTaskDelayUntil(&LastRun,( TickType_t )10); // Loop Motor update every 10 ms
+        // If no new propulsion values for 2.5 seconds stop motors
+        if(propulsion_cnt >= 251){
+            sm_data[0] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+            sm_data[1] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+        }
+        // If no new depth values for 2.5 seconds stop motors
+        if(depth_cnt >= 251){
+            sm_data[2] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+            sm_data[3] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+        }
+
+        propulsion_cnt ++;
+        xTaskDelayUntil(&LastRun,( TickType_t )1); // Loop Motor update every 10 ms
 
     }
 }
@@ -348,11 +362,11 @@ void UART_RX_Handler_Task(void *pvParameters){
     AutoHoldMsg.Level = 1000.f;
 
 
-    PropMsg.Left = 999;
-    PropMsg.Right = 999;
+    PropMsg.Left = 1000;
+    PropMsg.Right = 1000;
 
-    DepthMsg.Left = 999;
-    DepthMsg.Right = 999;
+    DepthMsg.Left = 1000;
+    DepthMsg.Right = 1000;
 
     while(AutoHold_queue == NULL){
         vTaskDelay((TickType_t) 100);
@@ -363,7 +377,8 @@ void UART_RX_Handler_Task(void *pvParameters){
         // Message format #R100L100+100I100C:(CMD)\0
 
         
-        if(bufferSize(&rxBuffer)>4){
+        //if(bufferSize(&rxBuffer)>4){
+        if(rxBuffer.data[rxBuffer.head-1] == '?' && bufferSize(&rxBuffer)>4){
             memset (&uart_msg,0,sizeof(uart_msg));
             bufferTake(&rxBuffer,(char *)&uart_msg,bufferSize(&rxBuffer));
             
@@ -381,7 +396,7 @@ void UART_RX_Handler_Task(void *pvParameters){
                 case 'R':
                     msgCnt++;
 
-                    PropMsg.Right = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
+                    PropMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999)+1000);
                     msgCnt += 2;
                     
                     break;
@@ -389,7 +404,7 @@ void UART_RX_Handler_Task(void *pvParameters){
                 case 'r':
                     msgCnt++;
 
-                    PropMsg.Right = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);
+                    PropMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999));
                     msgCnt += 2;
 
                     break;
@@ -397,7 +412,7 @@ void UART_RX_Handler_Task(void *pvParameters){
                 case 'L':
                     msgCnt++;
 
-                    PropMsg.Left = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
+                    PropMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999)+1000);
                     msgCnt += 2;
                     
                     break;
@@ -405,7 +420,7 @@ void UART_RX_Handler_Task(void *pvParameters){
                 case 'l':
                     msgCnt++;
 
-                    PropMsg.Left = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);
+                    PropMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999));
                     msgCnt += 2;
 
                     break;
@@ -413,8 +428,8 @@ void UART_RX_Handler_Task(void *pvParameters){
                 case '+':
                     msgCnt++;
 
-                    DepthMsg.Right = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
-                    DepthMsg.Left = (uint16_t)((ascToInt((char *)&uart_msg[msgCnt],3)*1000)+999);
+                    DepthMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*1000)+999);
+                    DepthMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*1000)+999);
                     msgCnt += 2;
                     
                     break;
@@ -422,8 +437,8 @@ void UART_RX_Handler_Task(void *pvParameters){
                 case '-':
                     msgCnt++;
 
-                    DepthMsg.Right = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);
-                    DepthMsg.Left = (uint16_t)((1.f-ascToInt((char *)&uart_msg[msgCnt],3))*999);                
+                    DepthMsg.Right = (uint16_t)((1.f-ascToFloat((char *)&uart_msg[msgCnt],3))*999);
+                    DepthMsg.Left = (uint16_t)((1.f-ascToFloat((char *)&uart_msg[msgCnt],3))*999);                
                     msgCnt += 2;
 
                     break;
@@ -431,7 +446,7 @@ void UART_RX_Handler_Task(void *pvParameters){
                 case 'I':
                     msgCnt++;
 
-                    pwm_set_gpio_level(NMOS_1,(uint16_t)(ascToInt((char *)&uart_msg[msgCnt],3)*2500.f));
+                    pwm_set_gpio_level(NMOS_1,(uint16_t)(ascToFloat((char *)&uart_msg[msgCnt],3)*2500.f));
 
                     msgCnt += 2; 
                     break;
@@ -478,8 +493,8 @@ void UART_RX_Handler_Task(void *pvParameters){
 
 
         }
-        else
-            vTaskDelay((TickType_t) 100);
+        vTaskDelay((TickType_t) 10);
+        //vTaskSuspend( NULL );
 
 
 
@@ -548,7 +563,7 @@ void Depth_Hold_task(void *pvParameters) {
         if(AutoHoldMsg.Active){
         xQueueOverwrite(Depth_motor_queue,(void *) &DepthMsg);
         }
-        vTaskDelay(pdMS_TO_TICKS(sample_time * 1000));
+        vTaskDelay(pdMS_TO_TICKS(sample_time * 100));
         
     }
 }
