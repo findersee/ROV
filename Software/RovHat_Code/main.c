@@ -12,7 +12,7 @@ int main() {
 
 
 
-    printf("Starting scheduler...nr");
+    //printf("Starting scheduler...nr");
     vTaskStartScheduler();
     while (true) {
         asm("nop");
@@ -153,7 +153,7 @@ void UART_RX(){
 
 void UART_INIT(){
     // Set up our UART with a basic baud rate.
-    uart_init(UART_ID, 2400);
+    uart_init(UART_ID, BAUD_RATE);
 
     // Set the TX and RX pins by using the function select on the GPIO
     // Set datasheet for more information on function select
@@ -163,7 +163,7 @@ void UART_INIT(){
     // Actually, we want a different speed
     // The call will return the actual baud rate selected, which will be as close as
     // possible to that requested
-    int __unused actual = uart_set_baudrate(UART_ID, BAUD_RATE);
+    //int __unused actual = uart_set_baudrate(UART_ID, BAUD_RATE);
 
     // Set UART flow control CTS/RTS, we don't want these, so turn them off
     uart_set_hw_flow(UART_ID, false, false);
@@ -193,7 +193,7 @@ void UART_INIT(){
     // OK, all set up.
     // Lets send a basic string out, and then run a loop and wait for RX interrupts
     // The handler will count them, but also reflect the incoming data back with a slight change!
-    uart_puts(UART_ID, "\nHello, uart interrupts\n");
+    uart_puts(UART_ID, "\nHello, uart interrupts\r\n");
 
 
 }
@@ -228,8 +228,16 @@ void freeRTOS_setup(){
 void ADC_task(void *pvParameters){
 
     uint8_t ch=0;
-    uint16_t raw=0;
-    float conversion;
+    uint8_t prevCh = 0;
+    uint8_t sample_count=0;
+    #define samples 4
+
+    uint16_t rawAvg[4][samples];
+    //uint16_t rawSize = sizeof(rawAvg);
+    memset(&rawAvg,0,sizeof(rawAvg));
+
+    uint32_t raw=0;
+    //float conversion;
     while(ADC_queue == NULL){
         vTaskDelay((TickType_t) 100);
     }
@@ -242,31 +250,40 @@ void ADC_task(void *pvParameters){
 
     while(true){
         if( xSemaphoreTake( I2C_mutex, ( TickType_t ) portMAX_DELAY ) == pdTRUE ){
-            switch(ch){
-                case 0:
-                    ads1115_set_MUX(&adc,MUX_SINGLE_1);
-                    break;
-                case 1:
-                    ads1115_set_MUX(&adc,MUX_SINGLE_2);
-                    break;
-                case 2:
-                    ads1115_set_MUX(&adc,MUX_SINGLE_3);
-                    break;
-                case 3:
-                    ads1115_set_MUX(&adc,MUX_SINGLE_4);
-                    break;                                                            
+            if(prevCh != ch){
+                switch(ch){
+                    case 0:
+                        ads1115_set_MUX(&adc,MUX_SINGLE_1);
+                        break;
+                    case 1:
+                        ads1115_set_MUX(&adc,MUX_SINGLE_2);
+                        break;
+                    case 2:
+                        ads1115_set_MUX(&adc,MUX_SINGLE_3);
+                        break;
+                    case 3:
+                        ads1115_set_MUX(&adc,MUX_SINGLE_4);
+                        break;                                                            
+                }
+                ads1115_writeConfig(&adc);
+                prevCh = ch;
             }
-            ads1115_writeConfig(&adc);
-            ads1115_readADC(&adc,&raw);
+            ads1115_readADC(&adc,&rawAvg[ch][sample_count]);
             xSemaphoreGive( I2C_mutex );
         }
-            conversion = ads1115_convert_raw(&adc,raw);
-            aMessage.voltage = conversion;
-            aMessage.channel = ch;
-            ch++;
-            ch = ch % 4;
-            xQueueSendToBack(ADC_queue,(void *) & aMessage, (TickType_t) 10);
-            xTaskDelayUntil(&LastRun,100);
+
+            sample_count = ((sample_count+1) % samples);
+            if(sample_count == 0){
+                for(uint8_t i=0;i<samples;i++)
+                    raw += rawAvg[ch][i];
+                raw = raw / samples;
+
+                voltages[ch] = ads1115_convert_raw(&adc,(uint16_t)raw);
+                memset(&raw,0,sizeof(raw));
+                ch = ((ch+1) % 4);
+                asm("nop");
+            }
+            xTaskDelayUntil(&LastRun,10);
         }
 }
 
@@ -277,11 +294,11 @@ void motorControl_task(void *pvParameters){
     motorMessage_t Propulsion_motorValues;
     motorMessage_t Depth_motorValues;
     
-    Propulsion_motorValues.Left = 1047;
-    Propulsion_motorValues.Right = 1047;
+    Propulsion_motorValues.Left = 0;
+    Propulsion_motorValues.Right = 0;
 
-    Depth_motorValues.Left = 1047;
-    Depth_motorValues.Right = 1047;
+    Depth_motorValues.Left = 0;
+    Depth_motorValues.Right = 0;
 
 
     uint8_t propulsion_cnt = 0;
@@ -317,13 +334,13 @@ void motorControl_task(void *pvParameters){
 
             //Send updated values to right depth motor using Dshot
             if(Depth_motorValues.Right != 1000 && Depth_motorValues.Right != 0)
-                sm_data[2] = dshot_parse_throttle(&Propulsion_motorValues.Left,false);
+                sm_data[2] = dshot_parse_throttle(&Depth_motorValues.Right,false);
             else
                 sm_data[2] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
 
             //Send updated values to right depth motor using Dshot
             if(Depth_motorValues.Left != 1000 && Depth_motorValues.Left != 0)
-                sm_data[3] = dshot_parse_throttle(&Propulsion_motorValues.Left,false);
+                sm_data[3] = dshot_parse_throttle(&Depth_motorValues.Left,false);
             else
                 sm_data[3] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
 
@@ -341,6 +358,8 @@ void motorControl_task(void *pvParameters){
             sm_data[3] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
         }
 
+
+        depth_cnt ++;
         propulsion_cnt ++;
         xTaskDelayUntil(&LastRun,( TickType_t )1); // Loop Motor update every 10 ms
 
@@ -428,8 +447,8 @@ void UART_RX_Handler_Task(void *pvParameters){
                 case '+':
                     msgCnt++;
 
-                    DepthMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*1000)+999);
-                    DepthMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*1000)+999);
+                    DepthMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999)+1000);
+                    DepthMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999)+1000);
                     msgCnt += 2;
                     
                     break;
@@ -437,8 +456,8 @@ void UART_RX_Handler_Task(void *pvParameters){
                 case '-':
                     msgCnt++;
 
-                    DepthMsg.Right = (uint16_t)((1.f-ascToFloat((char *)&uart_msg[msgCnt],3))*999);
-                    DepthMsg.Left = (uint16_t)((1.f-ascToFloat((char *)&uart_msg[msgCnt],3))*999);                
+                    DepthMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999));
+                    DepthMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999));              
                     msgCnt += 2;
 
                     break;
@@ -493,9 +512,17 @@ void UART_RX_Handler_Task(void *pvParameters){
 
 
         }
+        /*
+        while (*transmitMsg){
+            uart_putc_raw(UART_ID,*transmitMsg++);
+        }
+        */
+        
+        
+        //uart_puts(UART_ID, "\nHello, uart interrupts\n");
         vTaskDelay((TickType_t) 10);
         //vTaskSuspend( NULL );
-
+        
 
 
     }

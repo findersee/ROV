@@ -29,7 +29,7 @@
 #define I2C_PORT i2c0
 #define I2C_FREQ 400000
 #define ADS1115_I2C_ADDR 0x48
-
+//Pin Definitions
 const uint8_t SDA_PIN = 0;
 const uint8_t SCL_PIN = 1;
 
@@ -52,8 +52,11 @@ const uint8_t NMOS_4 = 16;
 const uint8_t PWM_1 = 6;
 const uint8_t PWM_2 = 7;
 
+// ADC stuff
 struct ads1115_adc adc;
+float voltages[4];
 
+// DShot PIO stuff
 PIO pio = pio0;
 uint sm[4];
 uint32_t sm_data[4];
@@ -65,17 +68,18 @@ bool Dshot_timer_callback(repeating_timer_t *rt);
 
 
 
+
 static int received_msgs = 0;
 
 void HW_setup();
 
-// UART Initialization
+// UART Stuff
 void UART_RX();
 
 void UART_INIT();
 
 #define UART_ID uart1
-#define BAUD_RATE 115200
+#define BAUD_RATE 57600
 #define DATA_BITS 8
 #define STOP_BITS 1
 #define PARITY    UART_PARITY_NONE
@@ -94,6 +98,7 @@ UART_buffer_t rxBuffer;
 
 
 
+
 uint8_t bufferSize(UART_buffer_t *buffer);
 bool bufferEmpty(UART_buffer_t *buffer);
 void bufferTake(UART_buffer_t *buffer,char *dst, uint8_t elements);
@@ -101,6 +106,8 @@ void bufferTake(UART_buffer_t *buffer,char *dst, uint8_t elements);
 
 uint8_t buf_cnt;
 bool buf_rdy = true;
+
+char transmitMsg[30];
 
 
 // FreeRtos Stuff

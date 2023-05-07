@@ -59,6 +59,7 @@ void ads1115_set_PGA(ads1115_ADC_t *adc,enum ADS1115_PGA_t PGA){
 float ads1115_convert_raw(ads1115_ADC_t *adc,uint16_t adcValue){
     float fullScale;
     uint16_t pga = adc->config & ADS1115_PGA_MASK;
+    uint16_t value = adcValue;
     switch(pga) {
         case PGA_6144:
         fullScale = 6.144;
@@ -87,11 +88,11 @@ float ads1115_convert_raw(ads1115_ADC_t *adc,uint16_t adcValue){
 
     float voltOut;
 
-    if(adcValue & 0x8000){
-        adcValue = (adcValue ^ 0xffff) + 1;
-        voltOut = (float)adcValue * -fullScale / 0x8000;
+    if(value & 0x8000){
+        value = (value ^ 0xffff) + 1;
+        voltOut = (float)value * -fullScale / 0x8000;
     }
     else
-        voltOut = (float)adcValue * -fullScale / 0x8000;
+        voltOut = (float)value * fullScale / 0x8000;
     return voltOut;
 }
