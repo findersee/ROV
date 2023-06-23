@@ -52,9 +52,12 @@ const uint8_t NMOS_4 = 16;
 const uint8_t PWM_1 = 6;
 const uint8_t PWM_2 = 7;
 
+
+int uartTX_DMA_chan;
+
 // ADC stuff
 struct ads1115_adc adc;
-float voltages[4];
+volatile float voltages[4];
 
 // DShot PIO stuff
 PIO pio = pio0;
@@ -114,11 +117,6 @@ char transmitMsg[30];
 
 bool Auto_Hold_Active = false;
 
-typedef struct Ctrl_Message{
-    char message[33];
-    uint received;
-}Ctrl_Message_t;
-
 typedef struct ADC_Message{
     float voltage;
     uint8_t channel;
@@ -151,6 +149,6 @@ static QueueHandle_t AutoHold_queue;
 
 void ADC_task(void *pvParameters);
 void motorControl_task(void *pvParameters);
-void UART_RX_Handler_Task(void *pvParameters);
+void UART_Handler_Task(void *pvParameters);
 void Depth_Hold_task(void *pvParameters);
 #endif

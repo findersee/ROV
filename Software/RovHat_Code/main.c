@@ -136,19 +136,12 @@ void bufferTake(UART_buffer_t *buffer, char *dst, uint8_t elements){
 
 // UART Code
 void UART_RX(){
-    //BaseType_t xYieldRequired;
-    
-    //if(uart_is_readable(UART_ID)){
-        while (uart_is_readable(UART_ID)) {
-            //uint8_t ch = uart_getc(UART_ID);
-            rxBuffer.data[rxBuffer.head] = uart_getc(UART_ID);
-            rxBuffer.head = ((rxBuffer.head+1)%rxBufSize);
-            
-        }
-        //if(uart_getc(UART_ID) == '\r')
-        //    xYieldRequired = xTaskResumeFromISR(uartHandle);
-        //portYIELD_FROM_ISR( xYieldRequired );
-    //}
+    while (uart_is_readable(UART_ID)) {
+        //uint8_t ch = uart_getc(UART_ID);
+        rxBuffer.data[rxBuffer.head] = uart_getc(UART_ID);
+        rxBuffer.head = ((rxBuffer.head+1)%rxBufSize);
+        
+    }
 }
 
 void UART_INIT(){
@@ -163,7 +156,6 @@ void UART_INIT(){
     // Actually, we want a different speed
     // The call will return the actual baud rate selected, which will be as close as
     // possible to that requested
-    //int __unused actual = uart_set_baudrate(UART_ID, BAUD_RATE);
 
     // Set UART flow control CTS/RTS, we don't want these, so turn them off
     uart_set_hw_flow(UART_ID, false, false);
@@ -172,7 +164,25 @@ void UART_INIT(){
     uart_set_format(UART_ID, DATA_BITS, STOP_BITS, PARITY);
 
     // Turn off FIFO's - we want to do this character by character
-    uart_set_fifo_enabled(UART_ID, false);
+    uart_set_fifo_enabled(UART_ID, true);
+
+    //configure TX DMA
+
+    dma_channel_config dcc_uartTX;
+
+    uartTX_DMA_chan = dma_claim_unused_channel(true);
+    dcc_uartTX = dma_channel_get_default_config(uartTX_DMA_chan);
+    channel_config_set_transfer_data_size(&dcc_uartTX, DMA_SIZE_8);
+    channel_config_set_read_increment(&dcc_uartTX,true);
+    channel_config_set_write_increment(&dcc_uartTX,false);
+    dma_channel_configure(
+        uartTX_DMA_chan,
+        &dcc_uartTX,
+        &uart_get_hw(UART_ID)->dr,
+        NULL,
+        0,
+        false
+    );
 
     // Set up a RX interrupt
     // We need to set up the handler first
@@ -186,6 +196,7 @@ void UART_INIT(){
     // Now enable the UART to send interrupts - RX only
     uart_set_irq_enables(UART_ID, true, false);
 
+
     rxBuffer.bufSize = 64;
     rxBuffer.tail = 0;
     rxBuffer.head = 0;
@@ -193,7 +204,7 @@ void UART_INIT(){
     // OK, all set up.
     // Lets send a basic string out, and then run a loop and wait for RX interrupts
     // The handler will count them, but also reflect the incoming data back with a slight change!
-    uart_puts(UART_ID, "\nHello, uart interrupts\r\n");
+    //uart_puts(UART_ID, "\nHello, uart interrupts\r\n");
 
 
 }
@@ -218,7 +229,7 @@ void freeRTOS_setup(){
 
     xTaskCreate(motorControl_task,"MOTOR_TASK",configMINIMAL_STACK_SIZE,NULL,4,NULL);
 
-    xTaskCreate(UART_RX_Handler_Task,"UART HANDLER",configMINIMAL_STACK_SIZE,NULL,5,&uartHandle);
+    xTaskCreate(UART_Handler_Task,"UART HANDLER",configMINIMAL_STACK_SIZE,NULL,5,&uartHandle);
 
     //xTaskCreate(Depth_Hold_task,"Auto Depth Hold",configMINIMAL_STACK_SIZE,NULL,4,NULL);
 }
@@ -228,7 +239,7 @@ void freeRTOS_setup(){
 void ADC_task(void *pvParameters){
 
     uint8_t ch=0;
-    uint8_t prevCh = 0;
+    uint8_t prevCh = 1;
     uint8_t sample_count=0;
     #define samples 4
 
@@ -268,22 +279,27 @@ void ADC_task(void *pvParameters){
                 ads1115_writeConfig(&adc);
                 prevCh = ch;
             }
-            ads1115_readADC(&adc,&rawAvg[ch][sample_count]);
+
+            else{
+                ads1115_readADC(&adc,&rawAvg[ch][sample_count]);
+                sample_count = ((sample_count+1) % samples);
+                if(sample_count == 0){
+                    for(uint8_t i=0;i<samples;i++)
+                        raw += rawAvg[ch][i];
+                    raw = raw / samples;
+
+                    voltages[ch] = ads1115_convert_raw(&adc,(uint16_t)raw);
+                    memset(&raw,0,sizeof(raw));
+                    ch = ((ch+1) % 4);
+                    asm("nop");
+                }
+            }
             xSemaphoreGive( I2C_mutex );
         }
 
-            sample_count = ((sample_count+1) % samples);
-            if(sample_count == 0){
-                for(uint8_t i=0;i<samples;i++)
-                    raw += rawAvg[ch][i];
-                raw = raw / samples;
+           
 
-                voltages[ch] = ads1115_convert_raw(&adc,(uint16_t)raw);
-                memset(&raw,0,sizeof(raw));
-                ch = ((ch+1) % 4);
-                asm("nop");
-            }
-            xTaskDelayUntil(&LastRun,10);
+            xTaskDelayUntil(&LastRun,(TickType_t)10);
         }
 }
 
@@ -368,10 +384,12 @@ void motorControl_task(void *pvParameters){
 
 
 
-void UART_RX_Handler_Task(void *pvParameters){
+void UART_Handler_Task(void *pvParameters){
 
 
-    char uart_msg[33];
+    uint8_t length = 0;
+
+    char uart_msg[33] __attribute__ ((aligned (8)));
 
     motorMessage_t PropMsg,DepthMsg;
 
@@ -517,8 +535,11 @@ void UART_RX_Handler_Task(void *pvParameters){
             uart_putc_raw(UART_ID,*transmitMsg++);
         }
         */
-        
-        
+        //memset (&uart_msg,0,sizeof(uart_msg));
+        length = sprintf(uart_msg,"V1:%.3fV2:%.3fV3:%.3fV4:%.3f\r\n",voltages[0],voltages[1]);
+        dma_channel_transfer_from_buffer_now(uartTX_DMA_chan, uart_msg, length);
+
+
         //uart_puts(UART_ID, "\nHello, uart interrupts\n");
         vTaskDelay((TickType_t) 10);
         //vTaskSuspend( NULL );
