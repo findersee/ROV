@@ -5,9 +5,10 @@ import RPi.GPIO as GPIO
 
 import board
 import busio
-import RPi.GPIO as GPIO
 
 from adafruit_servokit import ServoKit
+
+from edurovi.utils import serial_connection
 
 i2c = busio.I2C(board.SCL, board.SDA)
 import adafruit_ads1x15.ads1115 as ADS
@@ -17,54 +18,85 @@ ads.gain = 2
 front_leak = 27
 rear_leak = 22
 
-class control(object):
+ser = serial_connection()
+
+
+class cameraControl(object):
+
     kit = ServoKit(channels=16)
+    
+    def __init___(self,channel=0,maxRotate=145,minRotate=45,center=90):
+        self.maxRotate = maxRotate
+        self.minRotate = minRotate
+        
+        self.center = center
+        self.camera = self.kit.servo[cameraServo]
+        #print(self.camera)
+        self.Angle = center
+        self.camera.angle = self.Angle
+ 
+    def set(self,level):
+        self.Angle = self.Angle*0.95+0.05*level
+        if self.Angle > self.maxRotate:
+            self.Angle = self.maxRotate
+        if self.Angle < self.minRotate:
+            self.Angle = self.minRotate
+            
+        self.camera.angle = self.Angle
+        
+ 
+    def up(self):
+        if self.Angle  < self.maxRotate:
+            self.Angle = self.Angle + 1
+        else:
+            self.Angle = self.maxRotate
+        #print(self.cameraAngle)
+        self.camera.angle = self.Angle 
+    
+    def down(self):
+        if self.Angle  > self.minRotate:
+            self.Angle = self.Angle - 1
+        else:
+            self.Angle = self.minRotate
+        #print(self.cameraAngle)
+        self.camera.angle = self.Angle 
+    
+    def camera_center(self):
+        self.Angle = 90
+        self.camera.angle = self.Angle 
+    
+    def close(self):
+        self.kit = 0
+        #GPIO.cleanup()
+        #self.pwm = 0
+
+
+
+class control(object):
     
     leftLevel = 0
     rightLevel = 0
 
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(13,GPIO.OUT)
-    GPIO.setup(rear_leak,GPIO.IN)
-    GPIO.setup(front_leak,GPIO.IN)
+
     
-    def __init__(self,Left=0,Right=1,depthLeft=2,depthRight=3
-              ,maxMove=1,minMove=-1
-              ,maxDepth=1,minDepth=-1
-              ,stopLevel=0,neutralLevel=0.13,turnRate=0.25,
-              pulseMax=1100,pulseMin=1900,
-              cameraServo=4,cameraMax=145,cameraMin=45):
-        
-        self.pwm = GPIO.PWM(13,10000)
-        self.pwm.start(0)
-        self.LightLevel= 0
+    def __init__(self
+              ,maxMove=100,minMove=-100
+              ,maxDepth=100,minDepth=-100
+              ,stopLevel=0,neutralLevel=13):
         
         self.l_ch = Left        
         self.r_ch = Right
         self.ld_ch = depthLeft
         self.rd_ch = depthRight        
     
-        self.camera = self.kit.servo[cameraServo]
-        #print(self.camera)
-        self.camera.angle = 90
-        self.cameraAngle = 90
-        self.turnRate = turnRate
-        self.cameraMax = cameraMax
-        self.cameraMin = cameraMin        
-
-        self.kit.continuous_servo[self.r_ch].set_pulse_width_range(pulseMin,pulseMax)
-        self.kit.continuous_servo[self.l_ch].set_pulse_width_range(pulseMin,pulseMax)
-        self.kit.continuous_servo[self.ld_ch].set_pulse_width_range(pulseMin,pulseMax)
-        self.kit.continuous_servo[self.rd_ch].set_pulse_width_range(pulseMin,pulseMax)
+        #print(self.camera)    
             
         self.stopLevel = stopLevel
 
         self.leftLevel = self.stopLevel
-        self.kit.continuous_servo[self.l_ch].throttle = self.leftLevel
         self.rightLevel = self.stopLevel
-        self.kit.continuous_servo[self.r_ch].throttle = self.rightLevel
-        self.kit.continuous_servo[self.rd_ch].throttle = self.stopLevel
-        self.kit.continuous_servo[self.ld_ch].throttle = self.stopLevel
 
         self.maxMove = maxMove
         self.minMove = minMove
@@ -75,135 +107,13 @@ class control(object):
         
         self.divePwr = 0
         
-        self.light = False
+    def hatTransmit(mesg,serial_connection):
+        msg = str(mesg).encode()
+        serial_connection.write(msg)
 
-    def MoveStop(self):
-        self.leftLevel = self.stopLevel
-        self.rightLevel = self.stopLevel
-
-        self.kit.continuous_servo[self.r_ch].throttle = self.rightLevel
-        self.kit.continuous_servo[self.l_ch].throttle = self.leftLevel
-        #print(self._diveActive)
-        
-    def DepthStop(self):
-        if self._diveActive:
-            #self.divePwr = self._neutralLevel
-            #self.kit.continuous_servo[self.ld_ch].throttle = self._neutralLevel
-            #self.kit.continuous_servo[self.rd_ch].throttle = self._neutralLevel
-            divepower = self.divePwr
-            if divepower > self._neutralLevel :
-                while self._neutralLevel < divepower:
-                    divepower = round(divepower - 0.1,2)
-                    time.sleep(0.1)
-                    if(divepower < self._neutralLevel):
-                        divepower = self._neutralLevel
-                        self.kit.continuous_servo[self.rd_ch].throttle = divepower
-                        self.kit.continuous_servo[self.ld_ch].throttle = divepower
-                        break
-                    #print("divepower: " + str(divepower))
-                    self.kit.continuous_servo[self.rd_ch].throttle = divepower
-                    self.kit.continuous_servo[self.ld_ch].throttle = divepower
-                #if self._neutralLevel+(power/100) > self.maxDepth:
-                #    divepower = self.maxDepth
-                #elif self._neutralLevel+(power/100) < self.minDepth:
-                #    divepower = self.minDepth        
-            if divepower < self._neutralLevel:
-                divepower = self._neutralLevel
-                #while self._neutralLevel > divepower:
-                #    divepower = round(divepower + 0.1,2)
-                    #print("divepower: " + str(divepower))
-                 #   time.sleep(0.1)
-                  #  if(divepower > self._neutralLevel):
-                  #      divepower = self._neutralLevel
-                   #     self.kit.continuous_servo[self.rd_ch].throttle = divepower
-                    #    self.kit.continuous_servo[self.ld_ch].throttle = divepower
-                     #   break
-                self.kit.continuous_servo[self.rd_ch].throttle = divepower
-                self.kit.continuous_servo[self.ld_ch].throttle = divepower
-            self.divePwr = divepower
-        
-        
-        
-        else:
-            self.divePwr = self.stopLevel
-            self.kit.continuous_servo[self.rd_ch].throttle = self.stopLevel
-            self.kit.continuous_servo[self.ld_ch].throttle = self.stopLevel
-
-    def dive(self,powerCmd):
-        if not self._diveActive:
-            self._diveActive = True
-        divepower = self._neutralLevel
-        power = round(self._neutralLevel+(powerCmd/100),2)
-        if power > self.maxDepth:
-            power = self.maxDepth
-        if power < self.minDepth:
-            power = self.minDepth
-        #print(self.divePwr , power)
-        if power != self.divePwr:
-            if power > 0:
-                while divepower < power:
-                    divepower = round(divepower + 0.05,2)
-                    time.sleep(0.1)
-                    if(divepower > self.maxDepth):
-                        divepower = self.maxDepth
-                        self.kit.continuous_servo[self.rd_ch].throttle = divepower
-                        self.kit.continuous_servo[self.ld_ch].throttle = divepower 
-                        break
-                    #print("divepower: " + str(divepower))
-                    self.kit.continuous_servo[self.rd_ch].throttle = divepower
-                    self.kit.continuous_servo[self.ld_ch].throttle = divepower
-
-                #if self._neutralLevel+(power/100) > self.maxDepth:
-                #    divepower = self.maxDepth
-                #elif self._neutralLevel+(power/100) < self.minDepth:
-                #    divepower = self.minDepth        
-            if power < 0:
-                while divepower > power:
-                    divepower = round(divepower - 0.05,2)
-                    #print("divepower: " + str(divepower))
-                    time.sleep(0.1)
-                    if(divepower < self.minDepth):
-                        divepower = self.minDepth
-                        self.kit.continuous_servo[self.rd_ch].throttle = divepower
-                        self.kit.continuous_servo[self.ld_ch].throttle = divepower
-                        break
-                    self.kit.continuous_servo[self.rd_ch].throttle = divepower
-                    self.kit.continuous_servo[self.ld_ch].throttle = divepower
-            self.divePwr = divepower
-        #else:
-        #    divepower = self._neutralLevel+(power/100)
-            
-        #print(divepower)
-        #self.kit.continuous_servo[self.rd_ch].throttle = divepower
-        #self.kit.continuous_servo[self.ld_ch].throttle = divepower
-
-    def surface(self):
-        self.kit.continuous_servo[self.rd_ch].throttle = -0.7
-        self.kit.continuous_servo[self.ld_ch].throttle = -0.7
-
-    def camera_up(self):
-        if self.cameraAngle < self.cameraMax:
-            self.cameraAngle = self.cameraAngle + 1
-        else:
-            self.cameraAngle = self.cameraMax
-        #print(self.cameraAngle)
-        self.camera.angle = self.cameraAngle
-    
     def disArm(self):
         if self._diveActive:
             self._diveActive = False
-    
-    def camera_down(self):
-        if self.cameraAngle > self.cameraMin:
-            self.cameraAngle = self.cameraAngle - 1
-        else:
-            self.cameraAngle = self.cameraMin
-        #print(self.cameraAngle)
-        self.camera.angle = self.cameraAngle
-    
-    def camera_center(self):
-        self.cameraAngle = 90
-        self.camera.angle = self.cameraAngle
     
     def motControl(self, padVal):
         left_power = 0
@@ -225,12 +135,23 @@ class control(object):
         self.leftLevel = left_power
         self.rightLevel = right_power
 
-        self.kit.continuous_servo[self.l_ch].throttle = self.leftLevel
-        self.kit.continuous_servo[self.r_ch].throttle = self.rightLevel
+        if left_power < 0:
+            leftMsg = "l"+str(abs(left_power))
+        else:
+            leftMsg = "L"+str(abs(left_power))
+            
+        if right_power < 0:
+            rightMsg = "r"+str(abs(left_power))
+        else:
+            rightMsg = "R"+str(abs(left_power))
+        #self.kit.continuous_servo[self.l_ch].throttle = self.leftLevel
+        #self.kit.continuous_servo[self.r_ch].throttle = self.rightLevel
+        
+        
         
         if self._diveActive:
-            if padVal[3] != 0 or padVal[2] != 0:
-                dive = padVal[3]-padVal[2]
+            if padVal[2] != 0:
+                dive = padVal[2]
 
                 dive = dive+self._neutralLevel
                 #print(dive,self.divePwr)
@@ -245,8 +166,8 @@ class control(object):
                 
                 
         else:
-            if padVal[3] != 0 or padVal[2] != 0:
-                dive = padVal[3]-padVal[2]
+            if padVal[2] != 0:
+                dive = padVal[2]
                 #print(dive,self.divePwr)
                 if abs(dive-self.divePwr) > 0.5:
                     if self.divePwr == 0:
@@ -257,20 +178,26 @@ class control(object):
                 dive = 0
         self.divePwr = max(min(self.maxDepth,dive)),self.minDepth)
         
-        self.kit.continuous_servo[self.rd_ch].throttle = self.divePwr
-        self.kit.continuous_servo[self.ld_ch].throttle = self.divePwr  
-    
+        if self.divePwr < 0:
+            diveMsg = "-"+str(abs(self.divePwr))
+        else:
+            diveMsg = "+"+str(abs(self.divePwr))        
+        #self.kit.continuous_servo[self.rd_ch].throttle = self.divePwr
+        #self.kit.continuous_servo[self.ld_ch].throttle = self.divePwr  
+        
+        message = "#"+rightMsg+leftMsg+diveMsg
+        self.hatTransmit(message,ser)
         
     def setLightOn(self):
-        self.pwm.ChangeDutyCycle(100)
+        self.hatTransmit("#I100",ser)
     def setLightOff(self):
-        self.pwm.ChangeDutyCycle(0)
+        self.hatTransmit("#I0",ser)
 
     def Light(self,lightBool_):
         if lightBool_:
-            self.pwm.ChangeDutyCycle(100)
+            self.hatTransmit("#I100",ser)
         else:
-            self.pwm.ChangeDutyCycle(0)
+            self.hatTransmit("#I0",ser)
 
 
     @property
@@ -309,11 +236,15 @@ class control(object):
         self.kit.continuous_servo[self.rd_ch].throttle = self.stopLevel
         self.kit.continuous_servo[self.ld_ch].throttle = self.stopLevel
         self.kit = 0
-        GPIO.cleanup()
+        #GPIO.cleanup()
         self.pwm = 0
 
 class sensors(object):
 
+    GPIO.setup(rear_leak,GPIO.IN)
+    GPIO.setup(front_leak,GPIO.IN)
+    GPIO.setup(low_leak,GPIO.IN)
+    GPIO.setup(high_leak,GPIO.IN)
 
     def __init__(self):
         self.GAIN = 2     
@@ -322,6 +253,10 @@ class sensors(object):
         self.device_file = device_folder + '/w1_slave'
         os.system('modprobe w1-gpio')
         #os.system('modprobe w1-therm')
+        
+        self.InputVoltage = 0
+        self.Pressure = 0
+        self.MidRail = 0
 
     def read_temp_raw(self):
         f = open(self.device_file, 'r')
@@ -354,11 +289,28 @@ class sensors(object):
         pressure = round(((presCh.voltage-factor)/factor)*100,3)
         return pressure
 
+    def parseHat(self,serial_connection):
+        factor = 0.2666667
+        if serial_connection.inWaiting():
+            msg = serial_connection.readline().decode().rstrip()
+
+            
+            if len(msg) >= 32:
+                #V1:X.xxxV2:X.xxxV3X.xxxV4:X.xxx
+                self.InputVoltage = float(msg.split(':')[1].split("V")[0])
+                self.Pressure = round(((float(msg.split(':')[2].split("V")[0])-factor)/factor)*100,3)
+                reset_input_buffer()
+            #else:
+                #return None
+
     def readSensors(self):
+    
+        self.parseHat(ser)
+    
         sensors = {
-        'pressure': self.read_pressure(),
+        'pressure': self.Pressure,
         'temperature': self.read_temp(),
-        'voltage' : self.read_volts(),
+        'voltage' : self.InputVoltage,
         'leak' : self.readLeak(),
         }        
         return sensors
@@ -367,4 +319,11 @@ class sensors(object):
     def readLeak(self):
         leak_f = GPIO.input(front_leak)
         leak_r = GPIO.input(rear_leak)
-        return leak_f,leak_r
+        leak_l = GPIO.input(low_leak)
+        leak_h = GPIO.input(high_leak)
+        
+        
+        return leak_f,leak_r,leak_l,leak_h
+        
+    def close(self):    
+        GPIO.cleanup()
