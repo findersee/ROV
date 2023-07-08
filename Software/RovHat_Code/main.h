@@ -147,6 +147,7 @@ static QueueHandle_t Depth_motor_queue;
 
 static QueueHandle_t AutoHold_queue;
 
+void HeartBeat(void *pvParameters);
 void ADC_task(void *pvParameters);
 void motorControl_task(void *pvParameters);
 void UART_Handler_Task(void *pvParameters);

@@ -103,6 +103,7 @@ void HW_setup()
     //pio_sm_put_blocking(pio,sm,0x5555);
 
     UART_INIT();
+    gpio_put(led_pin,true);
 }
 
 bool Dshot_timer_callback(repeating_timer_t *rt) {
@@ -188,7 +189,8 @@ void UART_INIT(){
     // We need to set up the handler first
     // Select correct interrupt for the UART we are using
     int UART_IRQ = UART_ID == uart0 ? UART0_IRQ : UART1_IRQ;
-    
+
+    //uart_set_translate_crlf(UART_ID,false);    
     // And set up and enable the interrupt handlers
     irq_set_exclusive_handler(UART_IRQ, UART_RX);
     irq_set_enabled(UART_IRQ, true);
@@ -224,6 +226,7 @@ void freeRTOS_setup(){
 
 
 
+    xTaskCreate(HeartBeat,"Heart_TASK",configMINIMAL_STACK_SIZE,NULL,1,NULL);
 
     xTaskCreate(ADC_task,"ADC_TASK",configMINIMAL_STACK_SIZE,NULL,1,NULL);
 
@@ -388,8 +391,9 @@ void UART_Handler_Task(void *pvParameters){
 
 
     uint8_t length = 0;
+    uint8_t txCnt=0; // Transmission counter
 
-    char uart_msg[33] __attribute__ ((aligned (8)));
+    char uart_msg[40] __attribute__ ((aligned (8)));
 
     motorMessage_t PropMsg,DepthMsg;
 
@@ -398,6 +402,7 @@ void UART_Handler_Task(void *pvParameters){
     AutoHoldMsg.Active = false;
     AutoHoldMsg.Level = 1000.f;
 
+    
 
     PropMsg.Left = 1000;
     PropMsg.Right = 1000;
@@ -415,7 +420,7 @@ void UART_Handler_Task(void *pvParameters){
 
         
         //if(bufferSize(&rxBuffer)>4){
-        if(rxBuffer.data[rxBuffer.head-1] == '?' && bufferSize(&rxBuffer)>4){
+        if(rxBuffer.data[rxBuffer.head-1] == '!' && bufferSize(&rxBuffer)>4){
             memset (&uart_msg,0,sizeof(uart_msg));
             bufferTake(&rxBuffer,(char *)&uart_msg,bufferSize(&rxBuffer));
             
@@ -536,8 +541,25 @@ void UART_Handler_Task(void *pvParameters){
         }
         */
         //memset (&uart_msg,0,sizeof(uart_msg));
-        length = sprintf(uart_msg,"V1:%.3fV2:%.3fV3:%.3fV4:%.3f\r\n",voltages[0],voltages[1]);
+        
+        switch (txCnt%2)
+        {
+        case 0:
+            length = sprintf(uart_msg,"?V1:%.3fV2:%.3f",voltages[0],voltages[1]);
+            /* code */
+            break;
+        case 1:    
+            length = sprintf(uart_msg,"V3:%.3fV4:%.3f\r\n",voltages[2],voltages[3]);
+            break;
+        default:
+            break;
+        }
+
+        //length = sprintf(uart_msg,"?V1:%.3fV2:%.3fV3:%.3fV4:%.3f\r\n",voltages[0],voltages[1],voltages[2],voltages[3]);
         dma_channel_transfer_from_buffer_now(uartTX_DMA_chan, uart_msg, length);
+
+        txCnt++;
+
 
 
         //uart_puts(UART_ID, "\nHello, uart interrupts\n");
@@ -614,4 +636,20 @@ void Depth_Hold_task(void *pvParameters) {
         vTaskDelay(pdMS_TO_TICKS(sample_time * 100));
         
     }
+}
+
+void HeartBeat(void *pvParameters) {
+
+
+
+while (1){
+
+
+    gpio_put(led_pin,!gpio_get(led_pin));
+    vTaskDelay((TickType_t)100);
+
+}
+
+
+
 }
