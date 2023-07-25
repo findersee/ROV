@@ -29,13 +29,14 @@ def control_motors():
             lightBtn = False
             with Pyro4.Proxy("PYRONAME:PadManager") as pad:
                 system = lowLevel.control()
+                camera = lowLevel.cameraControl()
                 axes = [0,0,0,0]
                 while rov.run:
                     try:
                         axes[0] = pad.axes[0]
                         axes[1] = pad.axes[1]
-                        axes[2] = pad.buttons[6]
-                        axes[3] = pad.buttons[7]
+                        axes[2] = pad.axes[2]
+                        axes[3] = pad.axes[3]
                     except:
                         axes[0] = 0
                         axes[1] = 0
@@ -57,18 +58,18 @@ def control_motors():
                         axes[2] = 0.4
                     elif keys.state('K_x'):
                         #print('down')
-                        axes[3] = 0.65
+                        axes[2] = -0.65
                     elif keys.state('K_u'):
                         system.disArm()
                         
                     if keys.state('K_i'):
                         #print('Camera Down')
-                        system.camera_down()
+                        camera.down()
                     elif keys.state('K_c'):
-                        system.camera_center()
+                        camera.center()
                     elif keys.state('K_k'):
                         #print('Camera Up')
-                        system.camera_up()
+                        camera.up()
                     
                     
                     try:
@@ -80,17 +81,14 @@ def control_motors():
                             system.diveActive = not system.diveActive
                         prevBtnState = pad.buttons
                         if pad.buttons[4]:
-                            system.camera_down()
+                            camera.down()
                         if pad.buttons[5]:
-                            system.camera_up()
+                            camera.up()
                         if pad.buttons[8]:
-                            system.camera_center()
+                            camera.center()
                     except Exception as e:
                         print("<p> Error: %s<p>" % str(e)) 
                         
-
-   
-
                     if keys.state(76) or lightBtn:
                         system.Light(True)
                     else:
@@ -101,6 +99,7 @@ def control_motors():
 
                     system.motControl(axes)
                     axes = [0,0,0,0]
+                camera.close()
                 system.close()
 
 
@@ -116,7 +115,10 @@ def sensors():
                 'batteryVoltage' : sens['voltage'],
                 'leak_front' : sens['leak'][0],
                 'leak_rear' : sens['leak'][1],
+                'leak_low' : sens['leak'][2],
+                'leak_high' : sens['leak'][3],
             }
+        sensors.close()
 
 def system_monitor():
     with Pyro4.Proxy("PYRONAME:ROVSyncer") as rov:
@@ -125,7 +127,7 @@ def system_monitor():
                           'cpu_temp': cpu_temperature()}
             time.sleep(10)
 
-def main(video_resolution='1920x1080', fps=30, server_port=8000, debug=False):
+def main(video_resolution='1024x768', fps=30, server_port=8000, debug=False):
     web_method = WebMethod(
         video_resolution=video_resolution,
         fps=fps,
@@ -145,13 +147,13 @@ if __name__ == '__main__':
         '-r',
         metavar='RESOLUTION',
         type=str,
-        default='1024x768',
+        default='1280x960',
         help='''resolution, use format WIDTHxHEIGHT or an integer''')
     parser.add_argument(
         '-fps',
         metavar='FRAMERATE',
         type=int,
-        default=30,
+        default=60,
         help='framerate for the camera (default 30)')
     parser.add_argument(
         '-d', '--debug',

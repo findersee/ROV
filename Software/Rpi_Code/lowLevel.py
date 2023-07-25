@@ -11,12 +11,14 @@ from adafruit_servokit import ServoKit
 from edurovi.utils import serial_connection
 
 i2c = busio.I2C(board.SCL, board.SDA)
-import adafruit_ads1x15.ads1115 as ADS
-from adafruit_ads1x15.analog_in import AnalogIn
-ads = ADS.ADS1115(i2c)
-ads.gain = 2
+#import adafruit_ads1x15.ads1115 as ADS
+#from adafruit_ads1x15.analog_in import AnalogIn
+#ads = ADS.ADS1115(i2c)
+#ads.gain = 2
 front_leak = 27
 rear_leak = 22
+low_leak = 17
+high_leak = 4
 
 ser = serial_connection()
 
@@ -24,16 +26,15 @@ ser = serial_connection()
 class cameraControl(object):
 
     kit = ServoKit(channels=16)
-    
-    def __init___(self,channel=0,maxRotate=145,minRotate=45,center=90):
+    def __init__(self,channel=0,maxRotate=175,minRotate=25,center=65):
         self.maxRotate = maxRotate
         self.minRotate = minRotate
         
-        self.center = center
-        self.camera = self.kit.servo[cameraServo]
+        self.centerPos = center
+        #self.camera = self.kit.servo[channel]
         #print(self.camera)
-        self.Angle = center
-        self.camera.angle = self.Angle
+        self.Angle = self.centerPos
+        self.kit.servo[0].angle = self.Angle
  
     def set(self,level):
         self.Angle = self.Angle*0.95+0.05*level
@@ -42,28 +43,28 @@ class cameraControl(object):
         if self.Angle < self.minRotate:
             self.Angle = self.minRotate
             
-        self.camera.angle = self.Angle
+        self.kit.servo[0].angle = self.Angle 
         
  
     def up(self):
         if self.Angle  < self.maxRotate:
-            self.Angle = self.Angle + 1
+            self.Angle = self.Angle + 2
         else:
             self.Angle = self.maxRotate
-        #print(self.cameraAngle)
-        self.camera.angle = self.Angle 
+        print(self.Angle)
+        self.kit.servo[0].angle = self.Angle 
     
     def down(self):
         if self.Angle  > self.minRotate:
-            self.Angle = self.Angle - 1
+            self.Angle = self.Angle - 2
         else:
             self.Angle = self.minRotate
-        #print(self.cameraAngle)
-        self.camera.angle = self.Angle 
+        print(self.Angle)
+        self.kit.servo[0].angle = self.Angle 
     
-    def camera_center(self):
-        self.Angle = 90
-        self.camera.angle = self.Angle 
+    def center(self):
+        self.Angle = self.centerPos
+        self.kit.servo[0].angle = self.Angle
     
     def close(self):
         self.kit = 0
@@ -77,19 +78,13 @@ class control(object):
     leftLevel = 0
     rightLevel = 0
 
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(13,GPIO.OUT)
+
 
     
     def __init__(self
               ,maxMove=100,minMove=-100
               ,maxDepth=100,minDepth=-100
-              ,stopLevel=0,neutralLevel=13):
-        
-        self.l_ch = Left        
-        self.r_ch = Right
-        self.ld_ch = depthLeft
-        self.rd_ch = depthRight        
+              ,stopLevel=0,neutralLevel=13):    
     
         #print(self.camera)    
             
@@ -107,7 +102,8 @@ class control(object):
         
         self.divePwr = 0
         
-    def hatTransmit(mesg,serial_connection):
+    def hatTransmit(self,mesg,serial_connection):
+        #print(mesg)
         msg = str(mesg).encode()
         serial_connection.write(msg)
 
@@ -136,14 +132,14 @@ class control(object):
         self.rightLevel = right_power
 
         if left_power < 0:
-            leftMsg = "l"+str(abs(left_power))
+            leftMsg = "l"+str(int(abs(left_power)*100)).zfill(3)
         else:
-            leftMsg = "L"+str(abs(left_power))
+            leftMsg = "L"+str(int(abs(left_power)*100)).zfill(3)
             
         if right_power < 0:
-            rightMsg = "r"+str(abs(left_power))
+            rightMsg = "r"+str(int(abs(left_power)*100)).zfill(3)
         else:
-            rightMsg = "R"+str(abs(left_power))
+            rightMsg = "R"+str(int(abs(left_power)*100)).zfill(3)
         #self.kit.continuous_servo[self.l_ch].throttle = self.leftLevel
         #self.kit.continuous_servo[self.r_ch].throttle = self.rightLevel
         
@@ -176,28 +172,29 @@ class control(object):
                         dive = round(self.divePwr*0.5,3)   
             else:
                 dive = 0
-        self.divePwr = max(min(self.maxDepth,dive)),self.minDepth)
+        self.divePwr = max(min(self.maxDepth,dive),self.minDepth)
         
         if self.divePwr < 0:
-            diveMsg = "-"+str(abs(self.divePwr))
+            diveMsg = "-"+str(int(abs(self.divePwr)*100)).zfill(3)
         else:
-            diveMsg = "+"+str(abs(self.divePwr))        
+            diveMsg = "+"+str(int(abs(self.divePwr)*100)).zfill(3)        
         #self.kit.continuous_servo[self.rd_ch].throttle = self.divePwr
         #self.kit.continuous_servo[self.ld_ch].throttle = self.divePwr  
         
-        message = "#"+rightMsg+leftMsg+diveMsg
+        message = "!"+rightMsg+leftMsg+diveMsg
+        
         self.hatTransmit(message,ser)
         
     def setLightOn(self):
-        self.hatTransmit("#I100",ser)
+        self.hatTransmit("!I100",ser)
     def setLightOff(self):
-        self.hatTransmit("#I0",ser)
+        self.hatTransmit("!I000",ser)
 
     def Light(self,lightBool_):
         if lightBool_:
-            self.hatTransmit("#I100",ser)
+            self.hatTransmit("!I100",ser)
         else:
-            self.hatTransmit("#I0",ser)
+            self.hatTransmit("!I000",ser)
 
 
     @property
@@ -227,20 +224,23 @@ class control(object):
         print(self._neutralLevel)
         
         if self._diveActive:
-            self.kit.continuous_servo[self.ld_ch].throttle = self._neutralLevel
-            self.kit.continuous_servo[self.rd_ch].throttle = self._neutralLevel
+            
+            if self._neutralLevel < 0:
+                diveMsg = "-"+str(abs(self._neutralLevel)*100).zfill(3)
+            else:
+                diveMsg = "+"+str(abs(self._neutralLevel)*100).zfill(3)  
+                
+            message = "#"+diveMsg+"?"
+            self.hatTransmit(message,ser)
+            #self.kit.continuous_servo[self.ld_ch].throttle = self._neutralLevel
+            #self.kit.continuous_servo[self.rd_ch].throttle = self._neutralLevel
         
+
     def close(self):
-        self.kit.continuous_servo[self.l_ch].throttle = self.stopLevel
-        self.kit.continuous_servo[self.r_ch].throttle = self.stopLevel
-        self.kit.continuous_servo[self.rd_ch].throttle = self.stopLevel
-        self.kit.continuous_servo[self.ld_ch].throttle = self.stopLevel
-        self.kit = 0
-        #GPIO.cleanup()
-        self.pwm = 0
+        self.hatTransmit("#R000L000+000I000?",ser)
 
 class sensors(object):
-
+    GPIO.setmode(GPIO.BCM)
     GPIO.setup(rear_leak,GPIO.IN)
     GPIO.setup(front_leak,GPIO.IN)
     GPIO.setup(low_leak,GPIO.IN)
@@ -249,20 +249,25 @@ class sensors(object):
     def __init__(self):
         self.GAIN = 2     
         base_dir = '/sys/bus/w1/devices/'
-        device_folder = glob.glob(base_dir + '28*')[0]
-        self.device_file = device_folder + '/w1_slave'
-        os.system('modprobe w1-gpio')
+        try:
+            device_folder = glob.glob(base_dir + '28*')[0]
+            self.device_file = device_folder + '/w1_slave'
+            #os.system('modprobe w1-gpio')
+        except:
+            self.device_file = ''
         #os.system('modprobe w1-therm')
-        
         self.InputVoltage = 0
         self.Pressure = 0
         self.MidRail = 0
 
     def read_temp_raw(self):
-        f = open(self.device_file, 'r')
-        lines = f.readlines()
-        f.close()
-        return lines
+        try:
+            f = open(self.device_file, 'r')
+            lines = f.readlines()
+            f.close()
+            return lines
+        except:
+            return ''
 
 
     def read_temp(self):
@@ -291,15 +296,21 @@ class sensors(object):
 
     def parseHat(self,serial_connection):
         factor = 0.2666667
-        if serial_connection.inWaiting():
-            msg = serial_connection.readline().decode().rstrip()
-
-            
+        if serial_connection.inWaiting() >= 32:
+            try:
+                msg = serial_connection.readline().decode().rstrip()
+            except Exception as e:
+                msg = ""
+                print("<p> Error: %s<p>" % str(e))
+            #print(msg)
             if len(msg) >= 32:
-                #V1:X.xxxV2:X.xxxV3X.xxxV4:X.xxx
-                self.InputVoltage = float(msg.split(':')[1].split("V")[0])
-                self.Pressure = round(((float(msg.split(':')[2].split("V")[0])-factor)/factor)*100,3)
-                reset_input_buffer()
+                # Message format ?V1:X.xxxV2:X.xxxV3X.xxxV4:X.xxx
+                #self.Pressure = float(msg.split(':')[1].split("V")[0]) # V1 voltage
+                self.Pressure = round(((float(msg.split(':')[1].split("V")[0])-factor)/factor)*100,3)
+                self.InputVoltage = (round(float(msg.split(':')[3].split("V")[0]),3)*(1/0.152)) # V3 voltage
+                
+
+                serial_connection.reset_input_buffer()
             #else:
                 #return None
 

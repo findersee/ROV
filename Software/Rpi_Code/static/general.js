@@ -181,6 +181,8 @@ function refresh_ui(){
     var cpuElem = document.getElementById("cpuTr");
     var frontElem = document.getElementById("leakFTr");
     var rearElem = document.getElementById("leakRTr");
+    var highElem = document.getElementById("leakHTr");
+    var lowElem = document.getElementById("leakLTr");
     if (sensors.batteryVoltage < critical.voltage){
         voltElem.className = " table-danger";
     } else{
@@ -200,6 +202,16 @@ function refresh_ui(){
         rearElem.className = " table-danger";
     } else{
         rearElem.className = rearElem.className.replace(" table-danger", "");
+    }
+    if (sensors.leak_high < 1){
+        highElem.className = " table-danger";
+    } else{
+        highElem.className = highElem.className.replace(" table-danger", "");
+    }
+    if (sensors.leak_low < 1){
+        lowElem.className = " table-danger";
+    } else{
+        lowElem.className = lowElem.className.replace(" table-danger", "");
     }
 }
 
