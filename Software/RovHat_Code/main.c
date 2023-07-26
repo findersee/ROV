@@ -19,7 +19,7 @@ int main() {
     }
 }
 
-float ascToFloat(char *point,uint8_t length){
+float ascToFloat(char *point){
     
     uint8_t out = 0;
  
@@ -62,10 +62,10 @@ void HW_setup()
     pwm_init((pwm_gpio_to_slice_num(NMOS_2)),&Config,true);
     pwm_init((pwm_gpio_to_slice_num(NMOS_3)),&Config,true);
     pwm_init((pwm_gpio_to_slice_num(NMOS_4)),&Config,true);
-    pwm_set_gpio_level(NMOS_4,(2500/8));
-    pwm_set_gpio_level(NMOS_3,(2500/4));
-    pwm_set_gpio_level(NMOS_2,(2500/2));
-    pwm_set_gpio_level(NMOS_1,(2500));
+    pwm_set_gpio_level(NMOS_4,(0));
+    pwm_set_gpio_level(NMOS_3,(0));
+    pwm_set_gpio_level(NMOS_2,(0));
+    pwm_set_gpio_level(NMOS_1,(0));
     // Initialize ADC
     ads1115_init(I2C_PORT, ADS1115_I2C_ADDR, &adc);
 
@@ -86,21 +86,22 @@ void HW_setup()
     Dshot_program_init(pio,sm[2],offset,Depth_Right,div);
     Dshot_program_init(pio,sm[3],offset,Depth_Left,div);
 
+
+
     for(uint8_t cnt=0;cnt<4;cnt++){
+        sm_data[cnt] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
         pio_sm_set_enabled(pio,sm[cnt],true);
     }
 
 
 
-    if (!add_repeating_timer_ms(-2, Dshot_timer_callback, NULL, &DShot_Timer)) {
+    if (!add_repeating_timer_ms(-5, Dshot_timer_callback, NULL, &DShot_Timer)) {
         //printf("Failed to add timer\n");
         while(true){
         asm("nop");
         }
     }    
 
-
-    //pio_sm_put_blocking(pio,sm,0x5555);
 
     UART_INIT();
     gpio_put(led_pin,true);
@@ -367,12 +368,12 @@ void motorControl_task(void *pvParameters){
         } 
 
         // If no new propulsion values for 2.5 seconds stop motors
-        if(propulsion_cnt >= 251){
+        if(propulsion_cnt >= 254){
             sm_data[0] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
             sm_data[1] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
         }
         // If no new depth values for 2.5 seconds stop motors
-        if(depth_cnt >= 251){
+        if(depth_cnt >= 254){
             sm_data[2] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
             sm_data[3] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
         }
@@ -402,7 +403,8 @@ void UART_Handler_Task(void *pvParameters){
     AutoHoldMsg.Active = false;
     AutoHoldMsg.Level = 1000.f;
 
-    
+    bool PropMsgNew = false;
+    bool DepthMsgNew = false;
 
     PropMsg.Left = 1000;
     PropMsg.Right = 1000;
@@ -416,18 +418,20 @@ void UART_Handler_Task(void *pvParameters){
 
     while(true){
 
-        // Message format #R100L100+100I100C:(CMD)\0
+        // Message format !R100L100+100I100C:(CMD)\0
 
         
-        //if(bufferSize(&rxBuffer)>4){
-        if(rxBuffer.data[rxBuffer.head-1] == '!' && bufferSize(&rxBuffer)>4){
-            memset (&uart_msg,0,sizeof(uart_msg));
+        if(bufferSize(&rxBuffer)>4){
+            memset(&PropMsg,0,sizeof(PropMsg));
+            memset(&DepthMsg,0,sizeof(PropMsg));
+        //if(rxBuffer.data[rxBuffer.head-1] == '!' && bufferSize(&rxBuffer)>4){
+            memset(&uart_msg,0,sizeof(uart_msg));
             bufferTake(&rxBuffer,(char *)&uart_msg,bufferSize(&rxBuffer));
             
             uint8_t msgLen = strnlen((char *)&uart_msg,33);
             uint8_t msgCnt = 0;
             for(;msgCnt < msgLen;msgCnt++){
-                if(uart_msg[msgCnt] == '#')
+                if(uart_msg[msgCnt] == '!')
                     break;
             }
 
@@ -438,57 +442,64 @@ void UART_Handler_Task(void *pvParameters){
                 case 'R':
                     msgCnt++;
 
-                    PropMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999)+1000);
+                    PropMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999)+1000);
                     msgCnt += 2;
                     
+                    PropMsgNew = true;
                     break;
                     
                 case 'r':
                     msgCnt++;
 
-                    PropMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999));
+                    PropMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999));
                     msgCnt += 2;
 
+                    PropMsgNew = true;
                     break;
 
                 case 'L':
                     msgCnt++;
 
-                    PropMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999)+1000);
+                    PropMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999)+1000);
                     msgCnt += 2;
                     
+                    PropMsgNew = true;
                     break;
                     
                 case 'l':
                     msgCnt++;
 
-                    PropMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999));
+                    PropMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999));
                     msgCnt += 2;
 
+                    PropMsgNew = true;
                     break;
 
                 case '+':
                     msgCnt++;
 
-                    DepthMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999)+1000);
-                    DepthMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999)+1000);
+                    DepthMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999)+1000);
+                    DepthMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999)+1000);
                     msgCnt += 2;
                     
+                    DepthMsgNew = true;
                     break;
                     
                 case '-':
                     msgCnt++;
 
-                    DepthMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999));
-                    DepthMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt],3)*999));              
+                    DepthMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999));
+                    DepthMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999));              
                     msgCnt += 2;
 
+                    DepthMsgNew = true;
                     break;
 
                 case 'I':
                     msgCnt++;
 
-                    pwm_set_gpio_level(NMOS_1,(uint16_t)(ascToFloat((char *)&uart_msg[msgCnt],3)*2500.f));
+                    pwm_set_gpio_level(NMOS_1,(uint16_t)(ascToFloat((char *)&uart_msg[msgCnt])*2500.f));
+                    pwm_set_gpio_level(NMOS_2,(uint16_t)(ascToFloat((char *)&uart_msg[msgCnt])*2500.f));
 
                     msgCnt += 2; 
                     break;
@@ -529,10 +540,15 @@ void UART_Handler_Task(void *pvParameters){
                 }
             }
 
-            xQueueOverwrite(Propulsion_motor_queue,(void *) &PropMsg);
-            if(!Auto_Hold_Active)
+            if(PropMsgNew){
+                xQueueOverwrite(Propulsion_motor_queue,(void *) &PropMsg);
+                PropMsgNew = false;
+            }
+            
+            if(!Auto_Hold_Active && DepthMsgNew){
                 xQueueOverwrite(Depth_motor_queue,(void *) &DepthMsg);
-
+                DepthMsgNew = false;
+            }
 
         }
         /*
