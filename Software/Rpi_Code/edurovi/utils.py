@@ -4,6 +4,7 @@ Different utility functions practical for ROV control
 
 import ctypes
 import os
+import distro
 import platform
 import signal
 import socket
@@ -13,7 +14,7 @@ import warnings
 
 
 def detect_pi():
-    return platform.linux_distribution()[0].lower() == 'debian'
+    return distro.linux_distribution()[0].lower() == 'raspbian gnu/linux'
 
 
 if detect_pi():
@@ -37,7 +38,7 @@ def resolution_to_tuple(resolution):
     if 'x' not in resolution:
         raise ValueError('Resolution must be in format WIDTHxHEIGHT')
     screen_size = tuple([int(val) for val in resolution.split('x')])
-    if len(screen_size) is not 2:
+    if len(screen_size) != 2:
         raise ValueError('Error in parsing resolution, len is not 2')
     return screen_size
 
@@ -188,7 +189,7 @@ def receive_arduino_simple(serial_connection, min_length=1):
             return None
 
 
-def serial_connection(port='/dev/ttyACM0', baudrate=115200, timeout=0.05):
+def serial_connection(port='/dev/ttyS0', baudrate=57600, timeout=0.05):
     """
     Establishes a serial connection
 
@@ -278,6 +279,6 @@ def cpu_temperature():
     temperature : float
         the temperature
     """
-    cmds = ['/opt/vc/bin/vcgencmd', 'measure_temp']
+    cmds = ['/usr/bin/vcgencmd', 'measure_temp']
     response = subprocess.check_output(cmds).decode()
     return float(response.split('=')[1].split("'")[0].rstrip())

@@ -16,29 +16,35 @@ import Pyro4
 from edurovi.utils import server_ip, detect_pi, warning
 
 if detect_pi():
-    import picamera
+    from picamera2 import Picamera2
+    from picamera2.encoders import JpegEncoder
+    from picamera2.outputs import FileOutput
+    from libcamera import Transform
 
 
-class StreamingOutput(object):
+class StreamingOutput(io.BufferedIOBase):
     """Defines output for the picamera, used by request server"""
 
     def __init__(self):
         self.frame = None
-        self.buffer = io.BytesIO()
+        #self.buffer = io.BytesIO()
         self.condition = Condition()
-        self.count = 0
+        #self.count = 0
 
     def write(self, buf):
-        if buf.startswith(b'\xff\xd8'):
+        with self.condition:
+            self.frame = buf
+            self.condition.notify_all()
+        #if buf.startswith(b'\xff\xd8'):
             # New frame, copy the existing buffer's content and notify all
             # clients it's available
-            self.buffer.truncate()
-            with self.condition:
-                self.frame = self.buffer.getvalue()
-                self.condition.notify_all()
-            self.buffer.seek(0)
-            self.count += 1
-        return self.buffer.write(buf)
+        #    self.buffer.truncate()
+        #    with self.condition:
+        #        self.frame = self.buffer.getvalue()
+        #        self.condition.notify_all()
+        #    self.buffer.seek(0)
+        #    self.count += 1
+        #return self.buffer.write(buf)
 
 
 class RequestHandler(server.BaseHTTPRequestHandler):
@@ -234,13 +240,16 @@ def start_http_server(video_resolution, fps, server_port, index_file,
     if debug:
         print('Using {} @ {} fps'.format(video_resolution, fps))
 
-    with picamera.PiCamera(resolution=video_resolution,
-                           framerate=fps) as camera, \
+    with Picamera2() as camera, \
             Pyro4.Proxy("PYRONAME:ROVSyncer") as rov, \
             Pyro4.Proxy("PYRONAME:KeyManager") as keys, \
             Pyro4.Proxy("PYRONAME:PadManager") as pad:
         stream_output = StreamingOutput()
-        camera.start_recording(stream_output, format='mjpeg')
+        camera.configure(camera.create_video_configuration(main={"size": (int(video_resolution.split('x')[0]),int(video_resolution.split('x')[1]))},controls={"FrameRate": (int(fps))},transform=Transform(vflip=1,hflip=1)))
+        try:
+            camera.start_recording(JpegEncoder(), FileOutput(stream_output))#stream_output, format='mjpeg')
+        except:
+            exit()
         try:
             with WebpageServer(server_address=('', server_port),
                                RequestHandlerClass=RequestHandler,
