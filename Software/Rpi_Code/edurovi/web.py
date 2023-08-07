@@ -61,6 +61,8 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             self.redirect('/index.html', redir_type=301)
         elif self.path == '/stream.mjpg':
             self.serve_stream()
+        elif self.path == '/capture.jpeg':
+            self.serve_capture()            
         elif self.path.startswith('/http') or self.path.startswith('/www'):
             self.redirect(self.path[1:])
         elif self.path.startswith('/keyup'):
@@ -195,7 +197,19 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             logging.warning(
                 'Removed streaming client %s: %s',
                 self.client_address, str(e))
-
+    def serve_capture(self):
+        self.send_response(200)
+        self.send_header('Content-Type',
+                         'image/jpeg')
+        frame = self.output.frame
+        self.send_header('Content-Length', len(frame))
+        self.end_headers()
+        try:
+            self.wfile.write(frame)
+        except Exception as e:
+            logging.warning(
+                'Error in screen capture: %s', str(e))
+                
     def log_message(self, format, *args):
         return
 

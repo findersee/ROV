@@ -9,8 +9,9 @@ var stat = {light:false, armed:false, roll_ui:true, cinema:false,
             video_rotation:0};
 var sensors = {time:0, temp:0, pressure:0, humidity:0, pitch:0, roll:0, yaw:0,
             tempWater:0, pressureWater:0, batteryVoltage:0, free_space:0,
-            cpu_temp:0,leak_front:1,leak_rear:1};
+            cpu_temp:0,leak_front:1,leak_rear:1,leak_high:1,leak_low:1};
 var critical = {voltage:13.0, disk_space:300.0, cpu_temp:80.0};
+var warning =  {voltage:15.0, cpu_temp:70.0, pressureWater:100.0};
 
 var sensor_interval = 500;
 var interval;
@@ -183,6 +184,7 @@ function refresh_ui(){
     var rearElem = document.getElementById("leakRTr");
     var highElem = document.getElementById("leakHTr");
     var lowElem = document.getElementById("leakLTr");
+    var presElem = document.getElementById("pressureWater");
     if (sensors.batteryVoltage < critical.voltage){
         voltElem.className = " table-danger";
     } else{
@@ -190,9 +192,13 @@ function refresh_ui(){
     }
     if (sensors.cpu_temp > critical.cpu_temp){
         cpuElem.className = " table-danger";
-    } else{
-        cpuElem.className = cpuElem.className.replace(" table-danger", "");
-    }
+	}else if(sensors.cpu_temp > warning.cpu_temp){
+		cpuElem.className = " table-warning";
+	}
+	else{
+		cpuElem.className = cpuElem.className.replace(" table-danger", "");
+		cpuElem.className = cpuElem.className.replace(" table-warning", "");
+	}
     if (sensors.leak_front < 1){
         frontElem.className = " table-danger";
     } else{
@@ -213,6 +219,18 @@ function refresh_ui(){
     } else{
         lowElem.className = lowElem.className.replace(" table-danger", "");
     }
+	if (sensors.pressureWater > critical.pressureWater){
+		presElem.className = " table-danger";
+	} 
+	else if(sensors.pressureWater > warning.pressureWater){
+		presElem.className = " table-warning";
+	}
+	else{
+		presElem.className = presElem.className.replace(" table-danger", "");
+		presElem.className = presElem.className.replace(" table-warning", "");
+	}
+
+
 }
 
 
@@ -299,6 +317,10 @@ function send_gamepad_state(state){
 
 }
 
+function videoGrab(){
+    var link = document.getElementById('downloadlink');
+    link.download = new Date().toISOString().split('T')[0] +'_'+ new Date().toISOString().split('T')[1].split('.')[0] + '.jpeg'
 
+}
 
 get_sensor();
