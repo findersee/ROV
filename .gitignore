@@ -131,7 +131,8 @@ dmypy.json
 *.bak
 *.tmp
 *.kicad_pcb-bak
-
+*/.history/*
+*-backups
 
 # Prerequisites
 *.d
@@ -188,3 +189,6 @@ Mkfile.old
 dkms.conf
 
 */lib/*
+.history
+Gerber
+production

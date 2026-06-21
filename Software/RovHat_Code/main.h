@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "pico/stdlib.h"
 #include "pico/binary_info.h"
@@ -11,6 +12,8 @@
 
 #include <ads1115.h> //ADS1115 Driver
 #include <dshot.h>
+
+
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -36,8 +39,8 @@ const uint8_t SCL_PIN = 1;
 const uint8_t TX_PIN = 8;
 const uint8_t RX_PIN = 9;
 
-const uint8_t Prop_Right = 22;
-const uint8_t Prop_Left = 26;
+const uint8_t Prop_Right = 26;
+const uint8_t Prop_Left = 22;
 
 const uint8_t Depth_Right = 27;
 const uint8_t Depth_Left = 28;
@@ -52,6 +55,8 @@ const uint8_t NMOS_4 = 16;
 const uint8_t PWM_1 = 6;
 const uint8_t PWM_2 = 7;
 
+const float pressureFactor = 0.26667f; //Pressure calculation factor
+
 
 int uartTX_DMA_chan;
 
@@ -60,9 +65,9 @@ struct ads1115_adc adc;
 volatile float voltages[4];
 
 // DShot PIO stuff
-PIO pio = pio0;
-uint sm[4];
-uint32_t sm_data[4];
+PIO pio_0 = pio0;
+uint sm[6];
+uint32_t sm_data[6];
 
 repeating_timer_t DShot_Timer;
 
@@ -142,7 +147,8 @@ static SemaphoreHandle_t AutoDepth_mutex;
 
 static QueueHandle_t msg_queue;
 static QueueHandle_t ADC_queue;
-static QueueHandle_t Propulsion_motor_queue;
+static QueueHandle_t FrontPropulsion_motor_queue;
+static QueueHandle_t RearPropulsion_motor_queue;
 static QueueHandle_t Depth_motor_queue;
 
 static QueueHandle_t AutoHold_queue;

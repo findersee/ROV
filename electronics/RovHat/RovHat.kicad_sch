@@ -1,480 +1,1577 @@
-(kicad_sch (version 20230121) (generator eeschema)
-
-  (uuid e63e39d7-6ac0-4ffd-8aa3-1841a4541b55)
-
-  (paper "A3")
-
-  (title_block
-    (title "ROV RPI PICO HAT")
-    (date "2023-01-14")
-    (rev "1")
-    (company "Findersee")
-    (comment 1 "Main Block Diagram")
-  )
-
-  (lib_symbols
-    (symbol "Mechanical:MountingHole" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
-      (property "Reference" "H" (at 0 5.08 0)
-        (effects (font (size 1.27 1.27)))
-      )
-      (property "Value" "MountingHole" (at 0 3.175 0)
-        (effects (font (size 1.27 1.27)))
-      )
-      (property "Footprint" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "Datasheet" "~" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_keywords" "mounting hole" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_description" "Mounting Hole without connection" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_fp_filters" "MountingHole*" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (symbol "MountingHole_0_1"
-        (circle (center 0 0) (radius 1.27)
-          (stroke (width 1.27) (type default))
-          (fill (type none))
-        )
-      )
-    )
-  )
-
-
-  (wire (pts (xy 144.78 54.61) (xy 266.7 54.61))
-    (stroke (width 0) (type default))
-    (uuid 04078de4-e047-4e02-875b-928e230e9b8f)
-  )
-  (wire (pts (xy 144.78 110.49) (xy 266.7 110.49))
-    (stroke (width 0) (type default))
-    (uuid 0cc1bee0-2444-4290-8e89-7d0a9019834c)
-  )
-  (wire (pts (xy 144.78 69.85) (xy 266.7 69.85))
-    (stroke (width 0) (type default))
-    (uuid 1a655124-5f81-4f89-93f0-7e9771a081f6)
-  )
-  (wire (pts (xy 144.78 33.02) (xy 266.7 33.02))
-    (stroke (width 0) (type default))
-    (uuid 2a28de9a-e641-4e86-86c9-63372ce5dbc6)
-  )
-  (wire (pts (xy 144.78 224.79) (xy 266.7 224.79))
-    (stroke (width 0) (type default))
-    (uuid 411062e5-7c94-4552-8e3e-5b83857f7187)
-  )
-  (wire (pts (xy 144.78 198.12) (xy 266.7 198.12))
-    (stroke (width 0) (type default))
-    (uuid 47ca13d9-e021-4911-bf75-7d9ffe8b82d9)
-  )
-  (wire (pts (xy 144.78 106.68) (xy 266.7 106.68))
-    (stroke (width 0) (type default))
-    (uuid 4d67735c-3208-4374-b6f3-eb7cbf2a4b39)
-  )
-  (wire (pts (xy 144.78 237.49) (xy 266.7 237.49))
-    (stroke (width 0) (type default))
-    (uuid 5109700c-b9f2-4743-94fa-ce545c54792e)
-  )
-  (wire (pts (xy 144.78 207.01) (xy 266.7 207.01))
-    (stroke (width 0) (type default))
-    (uuid 686bc10c-95c0-48f3-bcdc-9044866fb0de)
-  )
-  (wire (pts (xy 144.78 114.3) (xy 266.7 114.3))
-    (stroke (width 0) (type default))
-    (uuid 6c866148-55b4-4885-8bd2-a17fb89af7e4)
-  )
-  (wire (pts (xy 144.78 232.41) (xy 266.7 232.41))
-    (stroke (width 0) (type default))
-    (uuid 6cf1f18a-cdc9-4e34-9f66-9ecf8e0a6540)
-  )
-  (wire (pts (xy 144.78 240.03) (xy 266.7 240.03))
-    (stroke (width 0) (type default))
-    (uuid 719a36b5-1734-452e-a487-fdfb8a97da30)
-  )
-  (wire (pts (xy 144.78 229.87) (xy 266.7 229.87))
-    (stroke (width 0) (type default))
-    (uuid 7a3df6a9-b3a4-4925-8a46-c51ca8a92adc)
-  )
-  (wire (pts (xy 144.78 209.55) (xy 266.7 209.55))
-    (stroke (width 0) (type default))
-    (uuid 833b8fc2-587f-4756-87d0-06a8edeab052)
-  )
-  (wire (pts (xy 144.78 52.07) (xy 266.7 52.07))
-    (stroke (width 0) (type default))
-    (uuid 8a731390-91d2-411a-87e8-cffb472b9de5)
-  )
-  (wire (pts (xy 144.78 44.45) (xy 266.7 44.45))
-    (stroke (width 0) (type default))
-    (uuid 8e8ec46d-caab-40a7-a29d-30283d9ff9fb)
-  )
-  (wire (pts (xy 144.78 222.25) (xy 266.7 222.25))
-    (stroke (width 0) (type default))
-    (uuid a8982dac-08f0-4769-abb4-5207bd27a112)
-  )
-  (wire (pts (xy 144.78 72.39) (xy 266.7 72.39))
-    (stroke (width 0) (type default))
-    (uuid a969245f-b48f-4361-8cdf-6a23bc929351)
-  )
-  (wire (pts (xy 144.78 74.93) (xy 266.7 74.93))
-    (stroke (width 0) (type default))
-    (uuid cd7160a4-eb2e-4a22-a14f-63ce107a5804)
-  )
-  (wire (pts (xy 144.78 102.87) (xy 266.7 102.87))
-    (stroke (width 0) (type default))
-    (uuid cf411dff-98dc-42f0-9443-4117a59d3574)
-  )
-  (wire (pts (xy 144.78 35.56) (xy 266.7 35.56))
-    (stroke (width 0) (type default))
-    (uuid f6f67d1a-3292-4d55-8a9f-70bce0a9ff20)
-  )
-  (wire (pts (xy 144.78 200.66) (xy 266.7 200.66))
-    (stroke (width 0) (type default))
-    (uuid fed7e725-6fe6-4c12-b7b2-bf5a655eda94)
-  )
-
-  (symbol (lib_id "Mechanical:MountingHole") (at 386.08 217.17 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
-    (uuid 02a6deef-a27e-4f78-9132-f029461a1c12)
-    (property "Reference" "H401" (at 388.62 216.2615 0)
-      (effects (font (size 1.27 1.27)) (justify left))
-    )
-    (property "Value" "MountingHole" (at 388.62 219.0366 0)
-      (effects (font (size 1.27 1.27)) (justify left))
-    )
-    (property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5" (at 386.08 217.17 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "~" (at 386.08 217.17 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (instances
-      (project "RovHat"
-        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-          (reference "H401") (unit 1)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "Mechanical:MountingHole") (at 386.08 224.79 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
-    (uuid 13b93b86-c7f7-4bd6-8395-83e3bb2ec213)
-    (property "Reference" "H402" (at 388.62 223.8815 0)
-      (effects (font (size 1.27 1.27)) (justify left))
-    )
-    (property "Value" "MountingHole" (at 388.62 226.6566 0)
-      (effects (font (size 1.27 1.27)) (justify left))
-    )
-    (property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5" (at 386.08 224.79 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "~" (at 386.08 224.79 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (instances
-      (project "RovHat"
-        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-          (reference "H402") (unit 1)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "Mechanical:MountingHole") (at 386.08 240.03 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
-    (uuid 8db2cc8d-4ba9-4c46-9a6a-2505da4c7844)
-    (property "Reference" "H404" (at 388.62 239.1215 0)
-      (effects (font (size 1.27 1.27)) (justify left))
-    )
-    (property "Value" "MountingHole" (at 388.62 241.8966 0)
-      (effects (font (size 1.27 1.27)) (justify left))
-    )
-    (property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5" (at 386.08 240.03 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "~" (at 386.08 240.03 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (instances
-      (project "RovHat"
-        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-          (reference "H404") (unit 1)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "Mechanical:MountingHole") (at 386.08 232.41 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
-    (uuid c11d4df1-2d00-44e1-90be-b73677a9c998)
-    (property "Reference" "H403" (at 388.62 231.5015 0)
-      (effects (font (size 1.27 1.27)) (justify left))
-    )
-    (property "Value" "MountingHole" (at 388.62 234.2766 0)
-      (effects (font (size 1.27 1.27)) (justify left))
-    )
-    (property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5" (at 386.08 232.41 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "~" (at 386.08 232.41 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (instances
-      (project "RovHat"
-        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-          (reference "H403") (unit 1)
-        )
-      )
-    )
-  )
-
-  (sheet (at 82.55 25.654) (size 62.23 220.726) (fields_autoplaced)
-    (stroke (width 0.1524) (type solid))
-    (fill (color 72 72 72 1.0000))
-    (uuid 0a21e7d0-6c69-4634-b2b6-f0d0223d8049)
-    (property "Sheetname" "MCU" (at 82.55 24.9424 0)
-      (effects (font (size 1.27 1.27)) (justify left bottom))
-    )
-    (property "Sheetfile" "MCU.kicad_sch" (at 82.55 246.9646 0)
-      (effects (font (size 1.27 1.27)) (justify left top))
-    )
-    (pin "BOOT_SEL" input (at 144.78 240.03 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid d8f0d010-0f9e-43b6-8507-643558363177)
-    )
-    (pin "RESET" bidirectional (at 144.78 237.49 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid 8e5bdb20-528f-4a8d-9143-78f8a57d2e5e)
-    )
-    (pin "USB_D+" bidirectional (at 144.78 232.41 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid 83c3ebf0-af3e-4b8d-a211-4fc7809ef8ef)
-    )
-    (pin "USB_D-" bidirectional (at 144.78 229.87 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid c00b2549-44fb-4db1-a7d6-70e10c595887)
-    )
-    (pin "SCL" output (at 144.78 33.02 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid a1bfeba5-e5e0-42b1-b18d-c3a625582636)
-    )
-    (pin "SDA" bidirectional (at 144.78 35.56 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid 8d0d6896-8501-4815-acf5-4112ad5d7ef6)
-    )
-    (pin "PWM_1" output (at 144.78 102.87 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid 4a6483c8-6451-46c2-a877-179c14f3f063)
-    )
-    (pin "PWM_2" output (at 144.78 106.68 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid aa6242c3-ca87-4441-84db-2dbae1331a57)
-    )
-    (pin "PWM_3" output (at 144.78 110.49 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid 064d72d0-7690-4398-951f-cb48ac707557)
-    )
-    (pin "PWM_4" output (at 144.78 114.3 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid e56da1ae-cab5-4135-8a6f-4180f355cb56)
-    )
-    (pin "USART_TX" output (at 144.78 222.25 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid 5ee4fc8b-efbe-44f1-be4c-a018f640929d)
-    )
-    (pin "USART_RX" input (at 144.78 224.79 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid 55f36f86-908c-4730-980f-355d308044cf)
-    )
-    (pin "PIO4" output (at 144.78 200.66 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid bd4604de-3172-47fc-8403-4d2048963c11)
-    )
-    (pin "PIO3" output (at 144.78 198.12 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid 721b02ea-2844-419c-b953-b65edbe9f4ea)
-    )
-    (pin "PIO1" output (at 144.78 207.01 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid 880c046a-907c-4426-8333-449c5c8aaa6b)
-    )
-    (pin "PIO2" output (at 144.78 209.55 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid 8611476e-5ff7-494b-9a4d-661d70a80d16)
-    )
-    (pin "GYRO_INT" input (at 144.78 52.07 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid ab1be22f-c03d-47e4-a298-e3b0c6eaf14c)
-    )
-    (pin "GYRO_RDY" input (at 144.78 54.61 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid 8f8b4683-5662-406f-ae94-89074922c034)
-    )
-    (pin "LSM_INT1" input (at 144.78 72.39 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid a3356943-2334-400a-a1a6-879da1578786)
-    )
-    (pin "LSM_INT2" input (at 144.78 74.93 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid e9044984-55d6-41a3-b269-f7c47e9eca6b)
-    )
-    (pin "LSM_DRDY" input (at 144.78 69.85 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid da7da810-823c-44ed-9016-b37f0a019903)
-    )
-    (pin "ADS_RDY" input (at 144.78 44.45 0)
-      (effects (font (size 1.27 1.27)) (justify right))
-      (uuid 370f7029-7586-4be7-ac32-f11328632793)
-    )
-    (instances
-      (project "RovHat"
-        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55" (page "3"))
-      )
-    )
-  )
-
-  (sheet (at 266.7 96.52) (size 49.53 50.8) (fields_autoplaced)
-    (stroke (width 0.1524) (type solid))
-    (fill (color 194 194 194 1.0000))
-    (uuid 212ae4ce-78ca-42fb-a0a9-9e7afe94e4f9)
-    (property "Sheetname" "Power + FETs" (at 266.7 95.8084 0)
-      (effects (font (size 1.27 1.27)) (justify left bottom))
-    )
-    (property "Sheetfile" "power.kicad_sch" (at 266.7 147.9046 0)
-      (effects (font (size 1.27 1.27)) (justify left top))
-    )
-    (pin "CH4" input (at 266.7 114.3 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid d77ba93d-163b-46a1-a900-4e20d041aca1)
-    )
-    (pin "CH2" input (at 266.7 106.68 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid a99167e1-f179-4916-8969-327fa0e85266)
-    )
-    (pin "CH3" input (at 266.7 110.49 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 42d54b1e-5f40-4898-8d95-faab79dc0b50)
-    )
-    (pin "CH1" input (at 266.7 102.87 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 027e9c6d-eb08-47b6-975d-aa1ed4781eaf)
-    )
-    (instances
-      (project "RovHat"
-        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55" (page "5"))
-      )
-    )
-  )
-
-  (sheet (at 266.7 27.94) (size 53.34 63.246) (fields_autoplaced)
-    (stroke (width 0.1524) (type solid))
-    (fill (color 132 132 132 1.0000))
-    (uuid ac5eb4a7-a387-48d6-b4f5-8a76d938534b)
-    (property "Sheetname" "Sensors" (at 266.7 27.2284 0)
-      (effects (font (size 1.27 1.27)) (justify left bottom))
-    )
-    (property "Sheetfile" "Sensors.kicad_sch" (at 266.7 91.7706 0)
-      (effects (font (size 1.27 1.27)) (justify left top))
-    )
-    (pin "SCL" input (at 266.7 33.02 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 78f13fa0-b7a9-4502-914e-f507247628c5)
-    )
-    (pin "SDA" bidirectional (at 266.7 35.56 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 2e2b6a56-1f08-4d44-9626-f5c1111f623f)
-    )
-    (pin "GYRO_INT" output (at 266.7 52.07 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 373bd859-fadc-4d85-8e28-7009b3643268)
-    )
-    (pin "GYRO_RDY" output (at 266.7 54.61 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 15e57278-0dc8-479f-95da-e4cbf5dac324)
-    )
-    (pin "LSM_DRDY" output (at 266.7 69.85 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid c3061f6d-b017-4aa5-b602-0045222feb58)
-    )
-    (pin "LSM_INT1" output (at 266.7 72.39 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 1bdf2b87-e380-4485-8219-3210fd09433f)
-    )
-    (pin "LSM_INT2" output (at 266.7 74.93 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 7d470bab-f5ab-492b-831f-990bc2aaa3b0)
-    )
-    (pin "ADS_RDY" output (at 266.7 44.45 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 3ad22176-0a21-40e6-af33-880bd2aa66d8)
-    )
-    (instances
-      (project "RovHat"
-        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55" (page "2"))
-      )
-    )
-  )
-
-  (sheet (at 266.7 177.8) (size 50.8 66.04) (fields_autoplaced)
-    (stroke (width 0.1524) (type solid))
-    (fill (color 132 132 132 1.0000))
-    (uuid d0328239-535b-4cf1-98be-6519c44fecfc)
-    (property "Sheetname" "Connectors" (at 266.7 177.0884 0)
-      (effects (font (size 1.27 1.27)) (justify left bottom))
-    )
-    (property "Sheetfile" "Connectors.kicad_sch" (at 266.7 244.4246 0)
-      (effects (font (size 1.27 1.27)) (justify left top))
-    )
-    (pin "RESET" output (at 266.7 237.49 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 0d05f546-62cf-4cbf-a628-801b66e9aa68)
-    )
-    (pin "BOOT_SEL" output (at 266.7 240.03 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 8f4011bb-841b-481d-8acb-013f616e9264)
-    )
-    (pin "RPI_RXD" input (at 266.7 222.25 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 6600b5d4-211c-449b-b729-ed8b701f73b7)
-    )
-    (pin "RPI_TXD" output (at 266.7 224.79 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 823e6b82-8b02-469f-ab89-bfeec1e11c15)
-    )
-    (pin "USB -" bidirectional (at 266.7 229.87 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 6665cdcb-9854-499a-9ac6-8e2f4a7f328a)
-    )
-    (pin "USB +" bidirectional (at 266.7 232.41 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 764ef8c7-370e-4270-804e-623e995a0436)
-    )
-    (pin "PL" input (at 266.7 198.12 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 998fc4e9-c9fe-4e32-b57f-02bbc996ed59)
-    )
-    (pin "PR" input (at 266.7 200.66 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 976cbb6e-70ba-4328-8adb-97cb92a29017)
-    )
-    (pin "DL" input (at 266.7 207.01 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 38196917-e799-43aa-8e3c-3c0925eef328)
-    )
-    (pin "DR" input (at 266.7 209.55 180)
-      (effects (font (size 1.27 1.27)) (justify left))
-      (uuid 75fbc1e2-84bf-4847-bb48-cbbcddef918f)
-    )
-    (instances
-      (project "RovHat"
-        (path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55" (page "4"))
-      )
-    )
-  )
-
-  (sheet_instances
-    (path "/" (page "1"))
-  )
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "e63e39d7-6ac0-4ffd-8aa3-1841a4541b55")
+	(paper "A3")
+	(title_block
+		(title "ROV RPI PICO HAT")
+		(date "2023-01-14")
+		(rev "1")
+		(company "Findersee")
+		(comment 1 "Main Block Diagram")
+	)
+	(lib_symbols
+		(symbol "Mechanical:MountingHole"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "H"
+				(at 0 5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "MountingHole"
+				(at 0 3.175 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Mounting Hole without connection"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "mounting hole"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "MountingHole*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "MountingHole_0_1"
+				(circle
+					(center 0 0)
+					(radius 1.27)
+					(stroke
+						(width 1.27)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+	)
+	(junction
+		(at 214.63 190.5)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "2fbe763f-f027-4498-97ea-254a983ac465")
+	)
+	(junction
+		(at 217.17 193.04)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "bd5f5ac2-0cde-4804-b3fe-35b5ac8d0d8b")
+	)
+	(wire
+		(pts
+			(xy 144.78 54.61) (xy 266.7 54.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "04078de4-e047-4e02-875b-928e230e9b8f")
+	)
+	(wire
+		(pts
+			(xy 217.17 82.55) (xy 217.17 193.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "06a5842f-6a4f-43b2-bc90-d43f7757d2b4")
+	)
+	(wire
+		(pts
+			(xy 144.78 190.5) (xy 214.63 190.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0bd8a517-b40a-4324-bb70-fd2052daf9c4")
+	)
+	(wire
+		(pts
+			(xy 144.78 69.85) (xy 266.7 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1a655124-5f81-4f89-93f0-7e9771a081f6")
+	)
+	(wire
+		(pts
+			(xy 217.17 82.55) (xy 266.7 82.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1a9c9061-4dc2-4583-ad4b-dbcb4c3b10f6")
+	)
+	(wire
+		(pts
+			(xy 144.78 33.02) (xy 266.7 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2a28de9a-e641-4e86-86c9-63372ce5dbc6")
+	)
+	(wire
+		(pts
+			(xy 144.78 193.04) (xy 217.17 193.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2c8c7246-49eb-4958-85e2-0942f54284ed")
+	)
+	(wire
+		(pts
+			(xy 214.63 80.01) (xy 214.63 190.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "35614f6d-d29e-4921-b27e-9ab5890d8b09")
+	)
+	(wire
+		(pts
+			(xy 144.78 224.79) (xy 266.7 224.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "411062e5-7c94-4552-8e3e-5b83857f7187")
+	)
+	(wire
+		(pts
+			(xy 144.78 198.12) (xy 266.7 198.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "47ca13d9-e021-4911-bf75-7d9ffe8b82d9")
+	)
+	(wire
+		(pts
+			(xy 144.78 215.9) (xy 266.7 215.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4d9187ca-45d2-4b98-980d-0c2463c3cbdf")
+	)
+	(wire
+		(pts
+			(xy 325.12 97.79) (xy 325.12 185.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4ef27cdc-cae7-4f86-858a-5f3d9e73f077")
+	)
+	(wire
+		(pts
+			(xy 144.78 237.49) (xy 266.7 237.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5109700c-b9f2-4743-94fa-ce545c54792e")
+	)
+	(wire
+		(pts
+			(xy 214.63 190.5) (xy 266.7 190.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "54f70921-a28b-422f-a93d-dcaf5488e77e")
+	)
+	(wire
+		(pts
+			(xy 236.22 97.79) (xy 325.12 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5b998009-c962-4116-b38e-73ba119b1113")
+	)
+	(wire
+		(pts
+			(xy 144.78 207.01) (xy 266.7 207.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "686bc10c-95c0-48f3-bcdc-9044866fb0de")
+	)
+	(wire
+		(pts
+			(xy 232.41 86.36) (xy 232.41 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "691509e1-4c5c-4985-b60c-c12468f23f16")
+	)
+	(wire
+		(pts
+			(xy 144.78 232.41) (xy 266.7 232.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6cf1f18a-cdc9-4e34-9f66-9ecf8e0a6540")
+	)
+	(wire
+		(pts
+			(xy 144.78 240.03) (xy 266.7 240.03)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "719a36b5-1734-452e-a487-fdfb8a97da30")
+	)
+	(wire
+		(pts
+			(xy 232.41 86.36) (xy 266.7 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "78f09f6a-e602-4f24-9e3f-67f2a9295af3")
+	)
+	(wire
+		(pts
+			(xy 144.78 229.87) (xy 266.7 229.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7a3df6a9-b3a4-4925-8a46-c51ca8a92adc")
+	)
+	(wire
+		(pts
+			(xy 144.78 209.55) (xy 266.7 209.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "833b8fc2-587f-4756-87d0-06a8edeab052")
+	)
+	(wire
+		(pts
+			(xy 144.78 213.36) (xy 266.7 213.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "88cfd33a-76e9-4505-8fef-a1522b125620")
+	)
+	(wire
+		(pts
+			(xy 144.78 118.11) (xy 266.7 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "89553348-5427-4d93-8561-d97dc73e886d")
+	)
+	(wire
+		(pts
+			(xy 144.78 52.07) (xy 266.7 52.07)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8a731390-91d2-411a-87e8-cffb472b9de5")
+	)
+	(wire
+		(pts
+			(xy 144.78 44.45) (xy 266.7 44.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8e8ec46d-caab-40a7-a29d-30283d9ff9fb")
+	)
+	(wire
+		(pts
+			(xy 232.41 101.6) (xy 322.58 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "95c101ad-1311-4fcf-8f18-4b19f15c3b41")
+	)
+	(wire
+		(pts
+			(xy 144.78 185.42) (xy 266.7 185.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "973f1c1a-65de-4e2b-8968-4739fb0665ff")
+	)
+	(wire
+		(pts
+			(xy 144.78 222.25) (xy 266.7 222.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a8982dac-08f0-4769-abb4-5207bd27a112")
+	)
+	(wire
+		(pts
+			(xy 144.78 72.39) (xy 266.7 72.39)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a969245f-b48f-4361-8cdf-6a23bc929351")
+	)
+	(wire
+		(pts
+			(xy 144.78 121.92) (xy 266.7 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a97e07c8-af3f-40a3-ac5a-838e5fffcd12")
+	)
+	(wire
+		(pts
+			(xy 322.58 101.6) (xy 322.58 181.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b6d57900-0c54-4961-b72a-396744be69df")
+	)
+	(wire
+		(pts
+			(xy 236.22 88.9) (xy 266.7 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b71235f3-864b-4f1c-9abf-7780972e802c")
+	)
+	(wire
+		(pts
+			(xy 217.17 193.04) (xy 266.7 193.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bd2d526e-635c-4afe-8d5a-69c4e20d231b")
+	)
+	(wire
+		(pts
+			(xy 317.5 181.61) (xy 322.58 181.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "be9229dd-feff-49e2-8703-9118f3a6bfef")
+	)
+	(wire
+		(pts
+			(xy 144.78 182.88) (xy 266.7 182.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bfaa4d8b-aab2-487d-a6a6-747319a9e3c2")
+	)
+	(wire
+		(pts
+			(xy 236.22 88.9) (xy 236.22 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c9a7653e-6642-481e-a9f5-0021cd17e249")
+	)
+	(wire
+		(pts
+			(xy 144.78 74.93) (xy 266.7 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cd7160a4-eb2e-4a22-a14f-63ce107a5804")
+	)
+	(wire
+		(pts
+			(xy 214.63 80.01) (xy 266.7 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dc69abd7-b43c-413b-8698-e967b54ea39b")
+	)
+	(wire
+		(pts
+			(xy 144.78 35.56) (xy 266.7 35.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f6f67d1a-3292-4d55-8a9f-70bce0a9ff20")
+	)
+	(wire
+		(pts
+			(xy 317.5 185.42) (xy 325.12 185.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fc02043a-fd65-4850-8550-94854dba6611")
+	)
+	(wire
+		(pts
+			(xy 144.78 200.66) (xy 266.7 200.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fed7e725-6fe6-4c12-b7b2-bf5a655eda94")
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 386.08 217.17 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "02a6deef-a27e-4f78-9132-f029461a1c12")
+		(property "Reference" "H1"
+			(at 388.62 216.2615 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 388.62 219.0366 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5"
+			(at 386.08 217.17 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 386.08 217.17 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 386.08 217.17 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "RovHat"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "H1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 386.08 224.79 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "13b93b86-c7f7-4bd6-8395-83e3bb2ec213")
+		(property "Reference" "H2"
+			(at 388.62 223.8815 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 388.62 226.6566 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5"
+			(at 386.08 224.79 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 386.08 224.79 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 386.08 224.79 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "RovHat"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "H2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 386.08 240.03 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "8db2cc8d-4ba9-4c46-9a6a-2505da4c7844")
+		(property "Reference" "H4"
+			(at 388.62 239.1215 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 388.62 241.8966 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5"
+			(at 386.08 240.03 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 386.08 240.03 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 386.08 240.03 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "RovHat"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "H4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 386.08 232.41 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c11d4df1-2d00-44e1-90be-b73677a9c998")
+		(property "Reference" "H3"
+			(at 388.62 231.5015 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MountingHole"
+			(at 388.62 234.2766 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5"
+			(at 386.08 232.41 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 386.08 232.41 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 386.08 232.41 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "RovHat"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "H3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(sheet
+		(at 82.55 25.654)
+		(size 62.23 220.726)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 49 194 123 1)
+		)
+		(uuid "0a21e7d0-6c69-4634-b2b6-f0d0223d8049")
+		(property "Sheetname" "MCU"
+			(at 82.55 24.9424 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "MCU.kicad_sch"
+			(at 82.55 246.9646 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "BOOT_SEL" input
+			(at 144.78 240.03 0)
+			(uuid "d8f0d010-0f9e-43b6-8507-643558363177")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "RESET" bidirectional
+			(at 144.78 237.49 0)
+			(uuid "8e5bdb20-528f-4a8d-9143-78f8a57d2e5e")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "SCL" output
+			(at 144.78 33.02 0)
+			(uuid "a1bfeba5-e5e0-42b1-b18d-c3a625582636")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "SDA" bidirectional
+			(at 144.78 35.56 0)
+			(uuid "8d0d6896-8501-4815-acf5-4112ad5d7ef6")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "PWM_1" output
+			(at 144.78 118.11 0)
+			(uuid "4a6483c8-6451-46c2-a877-179c14f3f063")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "PWM_2" output
+			(at 144.78 121.92 0)
+			(uuid "aa6242c3-ca87-4441-84db-2dbae1331a57")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "USART_TX" output
+			(at 144.78 222.25 0)
+			(uuid "5ee4fc8b-efbe-44f1-be4c-a018f640929d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "USART_RX" input
+			(at 144.78 224.79 0)
+			(uuid "55f36f86-908c-4730-980f-355d308044cf")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "FRONT RIGHT" output
+			(at 144.78 200.66 0)
+			(uuid "bd4604de-3172-47fc-8403-4d2048963c11")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "FRONT LEFT" output
+			(at 144.78 198.12 0)
+			(uuid "721b02ea-2844-419c-b953-b65edbe9f4ea")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "REAR RIGHT" output
+			(at 144.78 207.01 0)
+			(uuid "880c046a-907c-4426-8333-449c5c8aaa6b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "REAR LEFT" output
+			(at 144.78 209.55 0)
+			(uuid "8611476e-5ff7-494b-9a4d-661d70a80d16")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "GYRO_INT" input
+			(at 144.78 52.07 0)
+			(uuid "ab1be22f-c03d-47e4-a298-e3b0c6eaf14c")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "GYRO_RDY" input
+			(at 144.78 54.61 0)
+			(uuid "8f8b4683-5662-406f-ae94-89074922c034")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "LSM_INT1" input
+			(at 144.78 72.39 0)
+			(uuid "a3356943-2334-400a-a1a6-879da1578786")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "LSM_INT2" input
+			(at 144.78 74.93 0)
+			(uuid "e9044984-55d6-41a3-b269-f7c47e9eca6b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "LSM_DRDY" input
+			(at 144.78 69.85 0)
+			(uuid "da7da810-823c-44ed-9016-b37f0a019903")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "ADS_RDY" input
+			(at 144.78 44.45 0)
+			(uuid "370f7029-7586-4be7-ac32-f11328632793")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "DEPTH LEFT" output
+			(at 144.78 215.9 0)
+			(uuid "0b2fdd59-84ca-4f47-b834-464ce593b2c2")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "DEPTH RIGHT" output
+			(at 144.78 213.36 0)
+			(uuid "bab23d89-f627-40fe-9c81-1d776a86730f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "Servo 1" output
+			(at 144.78 182.88 0)
+			(uuid "f663b02e-33e8-490b-8746-5f1d4f920b06")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "Servo 2" output
+			(at 144.78 185.42 0)
+			(uuid "65c7ac6f-8024-4c46-9a1e-7a9127594146")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "RPI_I2C_SDA" bidirectional
+			(at 144.78 190.5 0)
+			(uuid "a6809f35-c841-4a45-90d0-86f95a80dd02")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "RPI_I2C_SCL" input
+			(at 144.78 193.04 0)
+			(uuid "155e42ef-ce77-46b8-b599-95578a1a128e")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(instances
+			(project "RovHat"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 266.7 111.76)
+		(size 49.53 50.8)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 194 194 194 1)
+		)
+		(uuid "212ae4ce-78ca-42fb-a0a9-9e7afe94e4f9")
+		(property "Sheetname" "Power + FETs"
+			(at 266.7 111.0484 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "power.kicad_sch"
+			(at 266.7 163.1446 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "CH2" input
+			(at 266.7 121.92 180)
+			(uuid "a99167e1-f179-4916-8969-327fa0e85266")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "CH1" input
+			(at 266.7 118.11 180)
+			(uuid "027e9c6d-eb08-47b6-975d-aa1ed4781eaf")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "RovHat"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(page "5")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 266.7 27.94)
+		(size 53.34 63.246)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 132 132 132 1)
+		)
+		(uuid "ac5eb4a7-a387-48d6-b4f5-8a76d938534b")
+		(property "Sheetname" "Sensors"
+			(at 266.7 27.2284 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Sensors.kicad_sch"
+			(at 266.7 91.7706 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "SCL" input
+			(at 266.7 33.02 180)
+			(uuid "78f13fa0-b7a9-4502-914e-f507247628c5")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "SDA" bidirectional
+			(at 266.7 35.56 180)
+			(uuid "2e2b6a56-1f08-4d44-9626-f5c1111f623f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "GYRO_INT" output
+			(at 266.7 52.07 180)
+			(uuid "373bd859-fadc-4d85-8e28-7009b3643268")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "GYRO_RDY" output
+			(at 266.7 54.61 180)
+			(uuid "15e57278-0dc8-479f-95da-e4cbf5dac324")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "LSM_DRDY" output
+			(at 266.7 69.85 180)
+			(uuid "c3061f6d-b017-4aa5-b602-0045222feb58")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "LSM_INT1" output
+			(at 266.7 72.39 180)
+			(uuid "1bdf2b87-e380-4485-8219-3210fd09433f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "LSM_INT2" output
+			(at 266.7 74.93 180)
+			(uuid "7d470bab-f5ab-492b-831f-990bc2aaa3b0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "ADS_RDY" output
+			(at 266.7 44.45 180)
+			(uuid "3ad22176-0a21-40e6-af33-880bd2aa66d8")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "Current" input
+			(at 266.7 88.9 180)
+			(uuid "ed30f4d5-f93f-4a55-9b70-18ea92627a65")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MOT VOLT" input
+			(at 266.7 86.36 180)
+			(uuid "c71d1578-2909-4c7a-8b35-15400e25f09d")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "RPI_SCL" input
+			(at 266.7 82.55 180)
+			(uuid "5517f8cc-d5e5-4c37-83f3-e7fcce1022d0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "RPI_SDA" bidirectional
+			(at 266.7 80.01 180)
+			(uuid "68748144-bec6-4d7f-9823-d7b168b35ed1")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "RovHat"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 266.7 177.8)
+		(size 50.8 66.04)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 132 132 132 1)
+		)
+		(uuid "d0328239-535b-4cf1-98be-6519c44fecfc")
+		(property "Sheetname" "Connectors"
+			(at 266.7 177.0884 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Connectors.kicad_sch"
+			(at 266.7 244.4246 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "RESET" output
+			(at 266.7 237.49 180)
+			(uuid "0d05f546-62cf-4cbf-a628-801b66e9aa68")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "BOOT_SEL" output
+			(at 266.7 240.03 180)
+			(uuid "8f4011bb-841b-481d-8acb-013f616e9264")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "RPI_RXD" input
+			(at 266.7 222.25 180)
+			(uuid "6600b5d4-211c-449b-b729-ed8b701f73b7")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "RPI_TXD" output
+			(at 266.7 224.79 180)
+			(uuid "823e6b82-8b02-469f-ab89-bfeec1e11c15")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "FRONT LEFT" input
+			(at 266.7 198.12 180)
+			(uuid "998fc4e9-c9fe-4e32-b57f-02bbc996ed59")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "FRONT RIGHT" input
+			(at 266.7 200.66 180)
+			(uuid "976cbb6e-70ba-4328-8adb-97cb92a29017")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "REAR RIGHT" input
+			(at 266.7 207.01 180)
+			(uuid "38196917-e799-43aa-8e3c-3c0925eef328")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "REAR LEFT" input
+			(at 266.7 209.55 180)
+			(uuid "75fbc1e2-84bf-4847-bb48-cbbcddef918f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "CURRENT" output
+			(at 317.5 185.42 0)
+			(uuid "0be5eb95-50d5-42d5-b482-e5a882d93719")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "MOT VOLT" output
+			(at 317.5 181.61 0)
+			(uuid "d298729e-6556-4092-a6d5-f4e7dbb4963a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "DEPTH LEFT" input
+			(at 266.7 215.9 180)
+			(uuid "87942225-9816-45ba-bfb5-8e62c764b315")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "DEPTH RIGHT" input
+			(at 266.7 213.36 180)
+			(uuid "32cfda76-ebf5-4df8-92d7-391f9e1995c6")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "Servo 1" input
+			(at 266.7 182.88 180)
+			(uuid "50af1ecd-ffca-436b-85d9-1cec3c53be74")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "Servo 2" input
+			(at 266.7 185.42 180)
+			(uuid "0d20cd5c-6ed4-47a4-9241-364869bcd9bc")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "RPI_I2C_SCL" output
+			(at 266.7 193.04 180)
+			(uuid "48ef243d-2d06-48fe-b950-f3df69ca284f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "RPI_I2C_SDA" bidirectional
+			(at 266.7 190.5 180)
+			(uuid "9b43866a-2561-4b0a-ad9c-3e49221bbd38")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "RovHat"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
 )

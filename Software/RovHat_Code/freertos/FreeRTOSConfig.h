@@ -43,9 +43,9 @@
 #define configUSE_DAEMON_TASK_STARTUP_HOOK      0
 
 /* Run time and task stats gathering related definitions. */
-#define configGENERATE_RUN_TIME_STATS           0
-#define configUSE_TRACE_FACILITY                0
-#define configUSE_STATS_FORMATTING_FUNCTIONS    0
+#define configGENERATE_RUN_TIME_STATS           1
+#define configUSE_TRACE_FACILITY                1
+#define configUSE_STATS_FORMATTING_FUNCTIONS    1
 
 /* Co-routine related definitions. */
 #define configUSE_CO_ROUTINES                   0
@@ -80,5 +80,11 @@
 #define INCLUDE_xTaskResumeFromISR              1
 
 /* A header file that defines trace macro can be included here. */
+
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() 
+extern uint64_t time_us_64(void);						// "hardware/timer.h"
+#define RUN_TIME_STAT_time_us_64Divider 1000			// stat granularity is mS
+#define portGET_RUN_TIME_COUNTER_VALUE() (time_us_64()/RUN_TIME_STAT_time_us_64Divider)	// runtime counter in mS
+
 
 #endif /* FREERTOS_CONFIG_H */

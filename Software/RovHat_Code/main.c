@@ -1,5 +1,7 @@
 #include "main.h"
 
+
+
 int main() {
     timer_hw->dbgpause = 0;
     HW_setup();
@@ -72,36 +74,42 @@ void HW_setup()
 
     //Initialize PIO and Timer for Dshot
 
-    sm[0] = pio_claim_unused_sm(pio,true);
-    sm[1] = pio_claim_unused_sm(pio,true);
-    sm[2] = pio_claim_unused_sm(pio,true);  
-    sm[3] = pio_claim_unused_sm(pio,true);
+    sm[0] = pio_claim_unused_sm(pio0,true);
+    sm[1] = pio_claim_unused_sm(pio0,true);
+    sm[2] = pio_claim_unused_sm(pio0,true);  
+    sm[3] = pio_claim_unused_sm(pio0,true);
+    sm[4] = pio_claim_unused_sm(pio1,true);
+    sm[5] = pio_claim_unused_sm(pio1,true);
 
-    uint offset = pio_add_program(pio,&Dshot_program);
+
+    uint offset = pio_add_program(pio0,&Dshot_program);
 
     float div = 15.625f; // DSHOT300 Divider
 
-    Dshot_program_init(pio,sm[0],offset,Prop_Right,div);
-    Dshot_program_init(pio,sm[1],offset,Prop_Left,div);
-    Dshot_program_init(pio,sm[2],offset,Depth_Right,div);
-    Dshot_program_init(pio,sm[3],offset,Depth_Left,div);
-
+    Dshot_program_init(pio0,sm[0],offset,Prop_Right,div);
+    Dshot_program_init(pio0,sm[1],offset,Prop_Left,div);
+    Dshot_program_init(pio0,sm[2],offset,Depth_Right,div);
+    Dshot_program_init(pio0,sm[3],offset,Depth_Left,div);
+    Dshot_program_init(pio1,sm[4],offset,PWM_1,div);
+    Dshot_program_init(pio1,sm[5],offset,PWM_2,div);
 
 
     for(uint8_t cnt=0;cnt<4;cnt++){
         sm_data[cnt] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
-        pio_sm_set_enabled(pio,sm[cnt],true);
+        pio_sm_set_enabled(pio0,sm[cnt],true);
     }
-
-
-
+    for(uint8_t cnt=4;cnt<6;cnt++){
+        sm_data[cnt] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+        pio_sm_set_enabled(pio1,sm[cnt],true);
+    }
+    /*
     if (!add_repeating_timer_ms(-5, Dshot_timer_callback, NULL, &DShot_Timer)) {
         //printf("Failed to add timer\n");
         while(true){
         asm("nop");
         }
     }    
-
+    */    
 
     UART_INIT();
     gpio_put(led_pin,true);
@@ -110,7 +118,10 @@ void HW_setup()
 bool Dshot_timer_callback(repeating_timer_t *rt) {
 
     for(uint8_t cnt=0;cnt<4;cnt++){
-        pio_sm_put_blocking(pio,sm[cnt],sm_data[cnt]);
+        pio_sm_put_blocking(pio0,sm[cnt],sm_data[cnt]);
+    }
+    for(uint8_t cnt=4;cnt<6;cnt++){
+        pio_sm_put_blocking(pio1,sm[cnt],sm_data[cnt]);
     }
 
     return true;
@@ -216,7 +227,7 @@ void freeRTOS_setup(){
     //Initialize queues
     ADC_queue = xQueueCreate(8,sizeof(ADC_Message_t));
 
-    Propulsion_motor_queue = xQueueCreate(1,sizeof(motorMessage_t));
+    FrontPropulsion_motor_queue = xQueueCreate(1,sizeof(motorMessage_t));
     Depth_motor_queue = xQueueCreate(1,sizeof(motorMessage_t));
 
     AutoHold_queue = xQueueCreate(4,sizeof(AutoHoldMessage_t));    
@@ -227,13 +238,13 @@ void freeRTOS_setup(){
 
 
 
-    xTaskCreate(HeartBeat,"Heart_TASK",configMINIMAL_STACK_SIZE,NULL,1,NULL);
+    xTaskCreate(HeartBeat,"Heart_TASK",32,NULL,0,NULL);
 
     xTaskCreate(ADC_task,"ADC_TASK",configMINIMAL_STACK_SIZE,NULL,1,NULL);
 
-    xTaskCreate(motorControl_task,"MOTOR_TASK",configMINIMAL_STACK_SIZE,NULL,4,NULL);
+    xTaskCreate(motorControl_task,"MOTOR_TASK",configMINIMAL_STACK_SIZE,NULL,3,NULL);
 
-    xTaskCreate(UART_Handler_Task,"UART HANDLER",configMINIMAL_STACK_SIZE,NULL,5,&uartHandle);
+    xTaskCreate(UART_Handler_Task,"UART HANDLER",configMINIMAL_STACK_SIZE,NULL,4,&uartHandle);
 
     //xTaskCreate(Depth_Hold_task,"Auto Depth Hold",configMINIMAL_STACK_SIZE,NULL,4,NULL);
 }
@@ -311,20 +322,26 @@ void motorControl_task(void *pvParameters){
 
     TickType_t LastRun;
 
-    motorMessage_t Propulsion_motorValues;
+    motorMessage_t FrontPropulsion_motorValues;
+    motorMessage_t RearPropulsion_motorValues;
     motorMessage_t Depth_motorValues;
     
-    Propulsion_motorValues.Left = 0;
-    Propulsion_motorValues.Right = 0;
+    FrontPropulsion_motorValues.Left = 0;
+    FrontPropulsion_motorValues.Right = 0;
 
     Depth_motorValues.Left = 0;
     Depth_motorValues.Right = 0;
 
 
-    uint8_t propulsion_cnt = 0;
+    uint8_t FrontPropulsion_cnt = 0;
+    uint8_t RearPropulsion_cnt = 0;
     uint8_t depth_cnt = 0;
 
-    while(Propulsion_motor_queue == NULL){
+    while(FrontPropulsion_motor_queue == NULL){
+        vTaskDelay((TickType_t) 100);
+    }
+
+    while(RearPropulsion_motor_queue == NULL){
         vTaskDelay((TickType_t) 100);
     }
 
@@ -334,53 +351,77 @@ void motorControl_task(void *pvParameters){
 
     while(true){
 
-        if(xQueueReceive(Propulsion_motor_queue,(void *) &Propulsion_motorValues,(TickType_t) 0) == pdTRUE){ // Get new propulsion motor values, don't block if nothing new
+        if(xQueueReceive(FrontPropulsion_motor_queue,(void *) &FrontPropulsion_motorValues,(TickType_t) 0) == pdTRUE){ // Get new propulsion motor values, don't block if nothing new
             //Send updated values to right propulsion motor using Dshot
-            if(Propulsion_motorValues.Right == 1000 || Propulsion_motorValues.Right == 0)
+            if(FrontPropulsion_motorValues.Right == 1000 || FrontPropulsion_motorValues.Right == 0)
                 sm_data[0] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
             else
-                sm_data[0] = dshot_parse_throttle(&Propulsion_motorValues.Right,false);
+                sm_data[0] = dshot_parse_throttle(&FrontPropulsion_motorValues.Right,false);
                 
 
             //Send updated values to left propulsion motor using Dshot
-            if(Propulsion_motorValues.Left == 1000 || Propulsion_motorValues.Left == 0)
+            if(FrontPropulsion_motorValues.Left == 1000 || FrontPropulsion_motorValues.Left == 0)
                 sm_data[1] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
             else
-                sm_data[1] = dshot_parse_throttle(&Propulsion_motorValues.Left,false);
-            propulsion_cnt = 0;
+                sm_data[1] = dshot_parse_throttle(&FrontPropulsion_motorValues.Left,false);
+            FrontPropulsion_cnt = 0;
         } 
+
+        if(xQueueReceive(RearPropulsion_motor_queue,(void *) &RearPropulsion_motorValues,(TickType_t) 0) == pdTRUE){ // Get new propulsion motor values, don't block if nothing new
+            //Send updated values to right propulsion motor using Dshot
+            if(RearPropulsion_motorValues.Right == 1000 || RearPropulsion_motorValues.Right == 0)
+                sm_data[2] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+            else
+                sm_data[2] = dshot_parse_throttle(&RearPropulsion_motorValues.Right,false);
+                
+
+            //Send updated values to left propulsion motor using Dshot
+            if(RearPropulsion_motorValues.Left == 1000 || RearPropulsion_motorValues.Left == 0)
+                sm_data[3] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+            else
+                sm_data[3] = dshot_parse_throttle(&RearPropulsion_motorValues.Left,false);
+            RearPropulsion_cnt = 0;
+        } 
+
 
         if(xQueueReceive(Depth_motor_queue,(void *) &Depth_motorValues,(TickType_t) 0) == pdTRUE){ // Get new depth motor values, don't block if nothing new
 
             //Send updated values to right depth motor using Dshot
             if(Depth_motorValues.Right != 1000 && Depth_motorValues.Right != 0)
-                sm_data[2] = dshot_parse_throttle(&Depth_motorValues.Right,false);
+                sm_data[4] = dshot_parse_throttle(&Depth_motorValues.Right,false);
             else
-                sm_data[2] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+                sm_data[4] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
 
             //Send updated values to right depth motor using Dshot
             if(Depth_motorValues.Left != 1000 && Depth_motorValues.Left != 0)
-                sm_data[3] = dshot_parse_throttle(&Depth_motorValues.Left,false);
+                sm_data[5] = dshot_parse_throttle(&Depth_motorValues.Left,false);
             else
-                sm_data[3] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+                sm_data[5] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
 
             depth_cnt = 0;
         } 
 
         // If no new propulsion values for 2.5 seconds stop motors
-        if(propulsion_cnt >= 254){
+        if(FrontPropulsion_cnt >= 254){
             sm_data[0] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
             sm_data[1] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
         }
-        // If no new depth values for 2.5 seconds stop motors
-        if(depth_cnt >= 254){
+
+        if(RearPropulsion_cnt >= 254){
             sm_data[2] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
             sm_data[3] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
         }
 
+        // If no new depth values for 2.5 seconds stop motors
+        if(depth_cnt >= 254){
+            sm_data[4] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+            sm_data[5] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+        }
+
 
         depth_cnt ++;
-        propulsion_cnt ++;
+        FrontPropulsion_cnt ++;
+        RearPropulsion_cnt ++;
         xTaskDelayUntil(&LastRun,( TickType_t )1); // Loop Motor update every 10 ms
 
     }
@@ -396,18 +437,22 @@ void UART_Handler_Task(void *pvParameters){
 
     char uart_msg[40] __attribute__ ((aligned (8)));
 
-    motorMessage_t PropMsg,DepthMsg;
+    motorMessage_t FrontPropMsg,RearPropMsg,DepthMsg;
 
     AutoHoldMessage_t AutoHoldMsg;
 
     AutoHoldMsg.Active = false;
     AutoHoldMsg.Level = 1000.f;
 
-    bool PropMsgNew = false;
+    bool FrontPropMsgNew = false;
+    bool RearPropMsgNew = false;
     bool DepthMsgNew = false;
 
-    PropMsg.Left = 1000;
-    PropMsg.Right = 1000;
+    FrontPropMsg.Left = 1000;
+    FrontPropMsg.Right = 1000;
+
+    RearPropMsg.Left = 1000;
+    RearPropMsg.Right = 1000;
 
     DepthMsg.Left = 1000;
     DepthMsg.Right = 1000;
@@ -418,17 +463,18 @@ void UART_Handler_Task(void *pvParameters){
 
     while(true){
 
-        // Message format !R100L100+100I100C:(CMD)\0
+        // Message format !R100L100W100E100+100I100C:(CMD)\0
 
         
         if(bufferSize(&rxBuffer)>4){
-            memset(&PropMsg,0,sizeof(PropMsg));
-            memset(&DepthMsg,0,sizeof(PropMsg));
+            memset(&FrontPropMsg,0,sizeof(FrontPropMsg));
+            memset(&RearPropMsg,0,sizeof(RearPropMsg));
+            memset(&DepthMsg,0,sizeof(DepthMsg));
         //if(rxBuffer.data[rxBuffer.head-1] == '!' && bufferSize(&rxBuffer)>4){
             memset(&uart_msg,0,sizeof(uart_msg));
             bufferTake(&rxBuffer,(char *)&uart_msg,bufferSize(&rxBuffer));
-            
-            uint8_t msgLen = strnlen((char *)&uart_msg,33);
+            bufferEmpty(&rxBuffer);
+            uint8_t msgLen = strnlen((char *)&uart_msg,36);
             uint8_t msgCnt = 0;
             for(;msgCnt < msgLen;msgCnt++){
                 if(uart_msg[msgCnt] == '!')
@@ -442,44 +488,80 @@ void UART_Handler_Task(void *pvParameters){
                 case 'R':
                     msgCnt++;
 
-                    PropMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999)+1000);
+                    FrontPropMsg.Right = (uint16_t)((atof((char *)&uart_msg[msgCnt])*9.99f)+1000);
                     msgCnt += 2;
                     
-                    PropMsgNew = true;
+                    FrontPropMsgNew = true;
                     break;
                     
                 case 'r':
                     msgCnt++;
 
-                    PropMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999));
+                    FrontPropMsg.Right = (uint16_t)((atof((char *)&uart_msg[msgCnt])*9.99f));
                     msgCnt += 2;
 
-                    PropMsgNew = true;
+                    FrontPropMsgNew = true;
                     break;
 
                 case 'L':
                     msgCnt++;
 
-                    PropMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999)+1000);
+                    FrontPropMsg.Left = (uint16_t)((atof((char *)&uart_msg[msgCnt])*9.99f)+1000);
                     msgCnt += 2;
                     
-                    PropMsgNew = true;
+                    FrontPropMsgNew = true;
                     break;
                     
                 case 'l':
                     msgCnt++;
 
-                    PropMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999));
+                    FrontPropMsg.Left = (uint16_t)((atof((char *)&uart_msg[msgCnt])*9.99f));
                     msgCnt += 2;
 
-                    PropMsgNew = true;
+                    FrontPropMsgNew = true;
+                    break;
+
+                case 'W':
+                    msgCnt++;
+
+                    RearPropMsg.Right = (uint16_t)((atof((char *)&uart_msg[msgCnt])*9.99f)+1000);
+                    msgCnt += 2;
+                    
+                    RearPropMsgNew = true;
+                    break;
+                    
+                case 'w':
+                    msgCnt++;
+
+                    RearPropMsg.Right = (uint16_t)((atof((char *)&uart_msg[msgCnt])*9.99f));
+                    msgCnt += 2;
+
+                    RearPropMsgNew = true;
+                    break;
+
+                case 'E':
+                    msgCnt++;
+
+                    RearPropMsg.Left = (uint16_t)((atof((char *)&uart_msg[msgCnt])*9.99f)+1000);
+                    msgCnt += 2;
+                    
+                    RearPropMsgNew = true;
+                    break;
+                    
+                case 'e':
+                    msgCnt++;
+
+                    RearPropMsg.Left = (uint16_t)((atof((char *)&uart_msg[msgCnt])*9.99f));
+                    msgCnt += 2;
+
+                    RearPropMsgNew = true;
                     break;
 
                 case '+':
                     msgCnt++;
 
-                    DepthMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999)+1000);
-                    DepthMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999)+1000);
+                    DepthMsg.Right = (uint16_t)((atof((char *)&uart_msg[msgCnt])*9.99f)+1000);
+                    DepthMsg.Left = (uint16_t)((atof((char *)&uart_msg[msgCnt])*9.99f)+1000);
                     msgCnt += 2;
                     
                     DepthMsgNew = true;
@@ -488,8 +570,8 @@ void UART_Handler_Task(void *pvParameters){
                 case '-':
                     msgCnt++;
 
-                    DepthMsg.Right = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999));
-                    DepthMsg.Left = (uint16_t)((ascToFloat((char *)&uart_msg[msgCnt])*999));              
+                    DepthMsg.Right = (uint16_t)((atof((char *)&uart_msg[msgCnt])*9.99f));
+                    DepthMsg.Left = (uint16_t)((atof((char *)&uart_msg[msgCnt])*9.99f));              
                     msgCnt += 2;
 
                     DepthMsgNew = true;
@@ -498,8 +580,8 @@ void UART_Handler_Task(void *pvParameters){
                 case 'I':
                     msgCnt++;
 
-                    pwm_set_gpio_level(NMOS_1,(uint16_t)(ascToFloat((char *)&uart_msg[msgCnt])*2500.f));
-                    pwm_set_gpio_level(NMOS_2,(uint16_t)(ascToFloat((char *)&uart_msg[msgCnt])*2500.f));
+                    pwm_set_gpio_level(NMOS_1,(uint16_t)(atof((char *)&uart_msg[msgCnt])*25.f));
+                    pwm_set_gpio_level(NMOS_2,(uint16_t)(atof((char *)&uart_msg[msgCnt])*25.f));
 
                     msgCnt += 2; 
                     break;
@@ -511,23 +593,45 @@ void UART_Handler_Task(void *pvParameters){
                     Commands:
                     H = Enable Autohold
                     h = Disable Autohold
-                    C = Calibrate IMU
                     P = Reset Pressure
+                    A = Arm Dshot timer
+                    a = Disarm Dshot timer
                     */
 
 
 
                     switch (uart_msg[msgCnt])
                     {
-                    case 'H':
+                    case 'H': //Enable autohold
                         AutoHoldMsg.Active = true;
-                        AutoHoldMsg.Level = 1200.f;
+                        AutoHoldMsg.Level = ((voltages[0]-pressureFactor)/pressureFactor)*100.0f;
                         xQueueSend(AutoHold_queue,(void *) &AutoHoldMsg,(TickType_t)0);
                         break;
-                    case 'h':
+                    case 'h': //Disable autohold
                         AutoHoldMsg.Active = false;
-                        AutoHoldMsg.Level = 800.f;
+                        AutoHoldMsg.Level = 0.0f;
                         xQueueSend(AutoHold_queue,(void *) &AutoHoldMsg,(TickType_t)0);
+                        break;
+                    case 'A': //Arm the board DShot
+                        if(!DShot_Timer.alarm_id)
+                            add_repeating_timer_ms(-5, Dshot_timer_callback, NULL, &DShot_Timer);
+                        break;
+                    
+                    case 'a': //Disarm the board Dshot
+                        cancel_repeating_timer(&DShot_Timer);
+                        break;
+
+                    case 'B':
+                        sm_data[4] = dshot_parse_cmd(DSHOT_CMD_BEEP1,false);
+                        sm_data[5] = dshot_parse_cmd(DSHOT_CMD_BEEP1,false);
+                        //sm_data[2] = dshot_parse_cmd(DSHOT_CMD_BEEP2,false);
+                        //sm_data[3] = dshot_parse_cmd(DSHOT_CMD_BEEP2,false);
+                        break;
+                    case 'b':
+                        sm_data[4] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+                        sm_data[5] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+                        //sm_data[2] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
+                        //sm_data[3] = dshot_parse_cmd(DSHOT_CMD_MOTOR_STOP,false);
                         break;
                     default:
                         break;
@@ -540,11 +644,17 @@ void UART_Handler_Task(void *pvParameters){
                 }
             }
 
-            if(PropMsgNew){
-                xQueueOverwrite(Propulsion_motor_queue,(void *) &PropMsg);
-                PropMsgNew = false;
+            if(FrontPropMsgNew){
+                xQueueOverwrite(FrontPropulsion_motor_queue,(void *) &FrontPropMsg);
+                FrontPropMsgNew = false;
             }
             
+            if(RearPropMsgNew){
+                xQueueOverwrite(FrontPropulsion_motor_queue,(void *) &RearPropMsg);
+                RearPropMsgNew = false;
+            }
+
+
             if(!Auto_Hold_Active && DepthMsgNew){
                 xQueueOverwrite(Depth_motor_queue,(void *) &DepthMsg);
                 DepthMsgNew = false;
@@ -587,6 +697,9 @@ void UART_Handler_Task(void *pvParameters){
     }
 }
 
+
+
+
 // Define the task function for the PID loop
 void Depth_Hold_task(void *pvParameters) {
     // Initialize variables for the PID loop
@@ -594,8 +707,8 @@ void Depth_Hold_task(void *pvParameters) {
     float input = 0.0f;
     float output = 0.0f;
     float kp = 1.0f; // Proportional gain
-    float ki = 0.5f; // Integral gain
-    float kd = 0.2f; // Derivative gain
+    float ki = 0.0f; // Integral gain
+    float kd = 0.0f; // Derivative gain
     float error = 0.0f;
     float error_integral = 0.0f;
     float error_derivative = 0.0f;
@@ -617,13 +730,17 @@ void Depth_Hold_task(void *pvParameters) {
     // Main loop for the PID controller
     while (1) {
 
-        xQueueReceive(AutoHold_queue,(void *) &AutoHoldMsg,(TickType_t) 0);
+        if(xQueueReceive(AutoHold_queue,(void *) &AutoHoldMsg,(TickType_t) 0) == pdTRUE){
+
+            setpoint = AutoHoldMsg.Level;
+
+        }
 
         while(!Auto_Hold_Active){
             vTaskDelay((TickType_t)1000);
         };
         // Read the input value from the sensor or other source
-        //input = readInputValue();
+        input = ((voltages[0]-pressureFactor)/pressureFactor)*100.0f; //readInputValue();
         
         // Calculate the error between the setpoint and input
         error = setpoint - input;
@@ -649,7 +766,7 @@ void Depth_Hold_task(void *pvParameters) {
         if(AutoHoldMsg.Active){
         xQueueOverwrite(Depth_motor_queue,(void *) &DepthMsg);
         }
-        vTaskDelay(pdMS_TO_TICKS(sample_time * 100));
+        vTaskDelay(pdMS_TO_TICKS(sample_time * 10));
         
     }
 }
