@@ -51,7 +51,7 @@ class cameraControl(object):
             self.Angle = self.Angle + 2
         else:
             self.Angle = self.maxRotate
-        print(self.Angle)
+        #print(self.Angle)
         self.kit.servo[0].angle = self.Angle 
     
     def down(self):
@@ -59,7 +59,7 @@ class cameraControl(object):
             self.Angle = self.Angle - 2
         else:
             self.Angle = self.minRotate
-        print(self.Angle)
+        #print(self.Angle)
         self.kit.servo[0].angle = self.Angle 
     
     def center(self):
@@ -77,14 +77,14 @@ class control(object):
     
     leftLevel = 0
     rightLevel = 0
-
+    LightVal = False
 
 
     
     def __init__(self
-              ,maxMove=100,minMove=-100
-              ,maxDepth=100,minDepth=-100
-              ,stopLevel=0,neutralLevel=13):    
+              ,maxMove=.70,minMove=-.50
+              ,maxDepth=1.0,minDepth=-1.0
+              ,stopLevel=0,neutralLevel=0.13):    
     
         #print(self.camera)    
             
@@ -100,10 +100,17 @@ class control(object):
         self._diveActive = False
         self._neutralLevel = 0
         
+        self.MoveFilter = 0.40
+        
         self.divePwr = 0
         
     def hatTransmit(self,mesg,serial_connection):
-        #print(mesg)
+        
+        if self.LightVal:
+            mesg = mesg+"I100"
+        else:
+            mesg = mesg+"I000"
+        #print(mesg)    
         msg = str(mesg).encode()
         serial_connection.write(msg)
 
@@ -114,19 +121,28 @@ class control(object):
     def motControl(self, padVal):
         left_power = 0
         right_power = 0
-        if (padVal[0] < -0.2 or padVal[0] > 0.2) or (padVal[1] < -0.2 or padVal[1] > 0.2):
-            if padVal[0] < 0:
-                padVal[0] = padVal[0]+0.05
-            elif padVal[0] > 0:
-                padVal[0] = padVal[0]-0.05       
+        if (padVal[0] < -0.1 or padVal[0] > 0.1) or (padVal[1] < -0.1 or padVal[1] > 0.1):
 
-            if padVal[1] < 0:
-                padVal[1] = padVal[1]+0.05
-            elif padVal[1] > 0:
-                padVal[1] = padVal[1]-0.05 
-
-            left_power = max(min(self.maxMove,round(padVal[1]+padVal[0],3)),self.minMove)
-            right_power = max(min(self.maxMove,round(padVal[1]-padVal[0],3)),self.minMove)
+            left_power = max(min(self.maxMove,
+            round(
+            (padVal[1]+padVal[0])*self.MoveFilter + self.leftLevel*(1-self.MoveFilter)
+            ,4)),self.minMove)
+            #left_power = round(left_power*self.MoveFilter + self.left_power*(1-self.MoveFilter),2)
+            right_power = max(min(self.maxMove,
+            round(
+            (padVal[1]-padVal[0])*self.MoveFilter + self.rightLevel*(1-self.MoveFilter)
+            ,4)),self.minMove)
+            #right_power = round(right_power*self.MoveFilter + self.right_power*(1-self.MoveFilter),2)
+        else:
+            left_power = max(min(self.maxMove,
+            round(
+            self.leftLevel*(1-self.MoveFilter)
+            ,4)),self.minMove)
+        
+            right_power = max(min(self.maxMove,
+            round(
+            self.rightLevel*(1-self.MoveFilter)
+            ,4)),self.minMove)
             
         self.leftLevel = left_power
         self.rightLevel = right_power
@@ -137,9 +153,9 @@ class control(object):
             leftMsg = "L"+str(int(abs(left_power)*100)).zfill(3)
             
         if right_power < 0:
-            rightMsg = "r"+str(int(abs(left_power)*100)).zfill(3)
+            rightMsg = "r"+str(int(abs(right_power)*100)).zfill(3)
         else:
-            rightMsg = "R"+str(int(abs(left_power)*100)).zfill(3)
+            rightMsg = "R"+str(int(abs(right_power)*100)).zfill(3)
         #self.kit.continuous_servo[self.l_ch].throttle = self.leftLevel
         #self.kit.continuous_servo[self.r_ch].throttle = self.rightLevel
         
@@ -186,15 +202,19 @@ class control(object):
         self.hatTransmit(message,ser)
         
     def setLightOn(self):
-        self.hatTransmit("!I100",ser)
+        self.LightVal = True
+        #self.hatTransmit("!I100",ser)
     def setLightOff(self):
-        self.hatTransmit("!I000",ser)
+        self.LightVal = False
+        #self.hatTransmit("!I000",ser)
 
     def Light(self,lightBool_):
         if lightBool_:
-            self.hatTransmit("!I100",ser)
+            self.LightVal = True
+            #self.hatTransmit("!I100",ser)
         else:
-            self.hatTransmit("!I000",ser)
+            self.LightVal = False
+            #self.hatTransmit("!I000",ser)
 
 
     @property
@@ -235,9 +255,18 @@ class control(object):
             #self.kit.continuous_servo[self.ld_ch].throttle = self._neutralLevel
             #self.kit.continuous_servo[self.rd_ch].throttle = self._neutralLevel
         
+    
+    def ArmBoard(self,armBool_):
+        if armBool_:
+            ser.write(str("!C:AR000L000+000").encode())
+        else:
+            ser.write(str("!C:a").encode())
+
 
     def close(self):
-        self.hatTransmit("#R000L000+000I000?",ser)
+        self.LightVal = False
+        self.hatTransmit("!R000L000+000",ser)
+        #self.ArmBoard(False)
 
 class sensors(object):
     GPIO.setmode(GPIO.BCM)

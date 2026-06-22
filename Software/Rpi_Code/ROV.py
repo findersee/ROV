@@ -31,12 +31,13 @@ def control_motors():
                 system = lowLevel.control()
                 camera = lowLevel.cameraControl()
                 axes = [0,0,0,0]
+                system.ArmBoard(True)
                 while rov.run:
                     try:
                         axes[0] = pad.axes[0]
-                        axes[1] = pad.axes[1]
-                        axes[2] = pad.axes[2]
-                        axes[3] = pad.axes[3]
+                        axes[1] = -1*pad.axes[1]
+                        axes[2] = pad.axes[3]
+                        axes[3] = pad.axes[2]
                     except:
                         axes[0] = 0
                         axes[1] = 0
@@ -48,9 +49,9 @@ def control_motors():
                     elif keys.state('K_a'):
                         axes[0] = -0.25
                     elif keys.state('K_w'):
-                        axes[1] = -0.3
+                        axes[1] = 0.3
                     elif keys.state('K_s'):
-                        axes[1] = 0.25
+                        axes[1] = -0.25
                         
                     if keys.state('K_z'):
                         #print('up')
