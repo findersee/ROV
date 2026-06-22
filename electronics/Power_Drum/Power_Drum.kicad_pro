@@ -40,8 +40,8 @@
         "other_text_upright": false,
         "pads": {
           "drill": 0.0,
-          "height": 2.5,
-          "width": 3.3
+          "height": 0.5,
+          "width": 1.625
         },
         "silk_line_width": 0.1,
         "silk_text_italic": false,
@@ -130,7 +130,7 @@
       },
       "rules": {
         "max_error": 0.005,
-        "min_clearance": 0.0,
+        "min_clearance": 0.15,
         "min_connection": 0.0,
         "min_copper_edge_clearance": 0.5,
         "min_groove_width": 0.0,
@@ -653,7 +653,7 @@
         "uuid": "b080b107-c37c-4b39-a626-f141d0adb0bd"
       }
     ],
-    "used_designators": "U4,C15-18,Q4,J8,R12-16,#PWR6,#PWR24-32,JP1",
+    "used_designators": "U2,J9-10,R1,R17-21,#PWR33-42,C9,TP1-2,Q1",
     "variants": []
   },
   "sheets": [
