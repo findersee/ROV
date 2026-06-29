@@ -60,7 +60,16 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        [
+          "courtyards_overlap|133000000|123905000|13f51475-ecba-4000-99e3-c192471e69eb|1c315772-ca27-4db7-ae7b-b9158faea613",
+          ""
+        ],
+        [
+          "courtyards_overlap|184900000|90887500|6ff51765-cdfa-474b-915b-9631f882989d|d48652af-8a9b-41d8-a672-f8c8a3e2393e",
+          ""
+        ]
+      ],
       "meta": {
         "version": 2
       },
@@ -138,7 +147,7 @@
         "min_hole_to_hole": 0.25,
         "min_microvia_diameter": 0.2,
         "min_microvia_drill": 0.1,
-        "min_resolved_spokes": 2,
+        "min_resolved_spokes": 1,
         "min_silk_clearance": 0.0,
         "min_text_height": 0.8,
         "min_text_thickness": 0.08,
@@ -154,7 +163,7 @@
           "td_onpthpad": true,
           "td_onroundshapesonly": false,
           "td_onsmdpad": true,
-          "td_ontrackend": false,
+          "td_ontrackend": true,
           "td_onvia": true
         }
       ],
@@ -198,7 +207,8 @@
         0.16,
         0.2,
         0.25,
-        0.3
+        0.3,
+        0.5
       ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
@@ -653,7 +663,7 @@
         "uuid": "b080b107-c37c-4b39-a626-f141d0adb0bd"
       }
     ],
-    "used_designators": "U2,J9-10,R1,R17-21,#PWR33-42,C9,TP1-2,Q1",
+    "used_designators": "",
     "variants": []
   },
   "sheets": [
